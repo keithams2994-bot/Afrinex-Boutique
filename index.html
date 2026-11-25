@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="./assets/js/qrcode.min.js"></script>
+<script src="./assets/js/bwip-js.min.js"></script>
 <style>
   :root {
     --bg-app: #f1f5f9;
@@ -1132,6 +1133,8 @@
         <button class="btn-modal-close" onclick="fermerModalHistoriqueZ()">Fermer</button>
       </div>
     </div>
+  </div>
+
   <!-- MODAL SYNCHRONISATION RÉSEAU & MULTI-POSTES -->
   <div class="modal-overlay" id="modalMultiPosSync">
     <div class="modal-content" style="width: 650px; max-width: 95%;">
@@ -1222,65 +1225,99 @@
       </div>
 
       <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px; border-top:1px solid #e2e8f0; padding-top:12px;">
+        <button class="btn-modal-close" onclick="fermerModalSync()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL ENTRÉE / RÉCEPTION DE STOCK AU SCANNER -->
-  <div class="modal-overlay" id="modalReceptionStock">
-    <div class="modal-content" style="width: 680px; max-width: 95%;">
+  <div class="modal-overlay" id="modalReceptionStock" style="display:none;">
+    <div class="modal-content" style="width: 760px; max-width: 95%; max-height:92vh; overflow-y:auto;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
         <h3 style="font-size: 19px; font-weight: 800; color: #0f172a; display:flex; align-items:center; gap:8px;">
           📦 Réception de Marchandises & Rentrée Stock
         </h3>
-        <span style="font-size:12px; font-weight:700; color:#4f46e5; background:#e0e7ff; padding:4px 10px; border-radius:6px;">Mode Douchette Actif</span>
+        <span style="font-size:12px; font-weight:700; color:#059669; background:#d1fae5; padding:4px 10px; border-radius:6px; display:flex; align-items:center; gap:6px;">
+          <span style="display:inline-block; width:8px; height:8px; background:#10b981; border-radius:50%; box-shadow:0 0 6px #10b981;"></span>
+          Scanner Douchette Prêt
+        </span>
       </div>
 
-      <!-- Zone Scanner Interactive -->
-      <div style="background:#f8fafc; border:2px dashed #6366f1; border-radius:10px; padding:16px; text-align:center; margin-bottom:16px;">
-        <div style="font-size:14px; font-weight:700; color:#312e81; display:flex; align-items:center; justify-content:center; gap:8px;">
-          <span class="pulse-dot" style="background:#4f46e5;"></span>
-          Visez le carton ou le produit avec votre scanner / douchette
+      <!-- Zone Scanner Interactive + Recherche Manuelle -->
+      <div style="background:#f8fafc; border:2px dashed #4f46e5; border-radius:12px; padding:16px; margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:13px; font-weight:800; color:#312e81; display:flex; align-items:center; gap:6px;">
+            ⚡ 1. Flashez le code avec le scanner ou saisissez-le :
+          </span>
+          <span style="font-size:11px; color:#6366f1; font-weight:700;">QR Code • DataMatrix • Aztec • Code 128 • EAN</span>
         </div>
-        <p style="font-size:12px; color:#64748b; margin-top:4px;">
-          Compatible 1D (Code-barres) & 2D (QR Code, Data Matrix, Aztec). Ou tapez le code ci-dessous :
-        </p>
-        <div style="display:flex; gap:8px; max-width:420px; margin:12px auto 0;">
-          <input type="text" id="inputScanReception" placeholder="Code carton ou référence..." style="flex:1; padding:8px 12px; font-size:14px; font-weight:700; text-align:center;" onkeydown="if(event.key==='Enter')traiterScanReception(this.value)">
-          <button class="btn-modal-primary" style="background:#4f46e5; padding:8px 14px;" onclick="traiterScanReception(document.getElementById('inputScanReception').value)">OK</button>
+        
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <input type="text" id="inputScanReception" placeholder="Flashez un code-barres / QR Code ou tapez ici..." style="flex:1; padding:10px 14px; font-size:15px; font-weight:700; border:2px solid #6366f1; border-radius:8px;" onkeydown="if(event.key==='Enter'){event.preventDefault();traiterScanReception(this.value);}">
+          <button class="btn-modal-primary" style="background:#4f46e5; padding:10px 18px; font-size:14px;" onclick="traiterScanReception(document.getElementById('inputScanReception').value)">🔍 Trouver</button>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:10px; border-top:1px dashed #cbd5e1; padding-top:10px;">
+          <span style="font-size:12px; font-weight:700; color:#64748b; white-space:nowrap;">Ou choisir dans le catalogue :</span>
+          <select id="receptionSelectManuel" onchange="choisirProduitManuelReception(this.value)" style="flex:1; padding:8px 10px; font-size:13px; font-weight:600; border:1px solid #cbd5e1; border-radius:6px; background:#ffffff;">
+            <option value="">-- Sélectionner un article existant --</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Alerte Code Inconnu -->
+      <div id="receptionAlerteInconnu" style="display:none; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:14px; margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <div style="font-size:14px; font-weight:800; color:#991b1b;">⚠️ Code non répertorié : <span id="spanCodeInconnu"></span></div>
+            <div style="font-size:12px; color:#b91c1c; margin-top:3px;">Ce produit n'existe pas encore dans le catalogue de la caisse.</div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-modal-primary" style="background:#dc2626; font-size:12px; padding:6px 12px;" onclick="creerArticleDepuisReception()">➕ Créer Nouvel Article</button>
+            <button class="btn-secondary" style="font-size:12px; padding:6px 12px;" onclick="masquerAlerteInconnu()">Ignorer</button>
+          </div>
         </div>
       </div>
 
       <!-- Zone Détail Produit Scanné -->
-      <div id="receptionProduitDetails" style="display:none; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:16px; margin-bottom:16px;">
-        <div style="display:flex; gap:16px; align-items:center; margin-bottom:14px;">
-          <img id="receptionImg" src="" style="width:70px; height:70px; object-fit:cover; border-radius:8px; border:1px solid #cbd5e1;">
+      <div id="receptionProduitDetails" style="display:none; background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+        <div style="display:flex; gap:16px; align-items:center; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid #f1f5f9;">
+          <img id="receptionImg" src="" style="width:72px; height:72px; object-fit:cover; border-radius:8px; border:1px solid #cbd5e1; background:#f8fafc;">
           <div style="flex:1;">
-            <div style="font-size:16px; font-weight:800; color:#0f172a;" id="receptionNom">Nom Produit</div>
+            <div style="font-size:17px; font-weight:800; color:#0f172a;" id="receptionNom">Nom Produit</div>
             <div style="font-size:12px; color:#64748b; margin-top:2px;">
-              Code: <strong id="receptionCode"></strong> | Rayon: <strong id="receptionRayon"></strong>
+              Code: <strong id="receptionCode" style="font-family:monospace; color:#1e293b;"></strong> | Rayon: <strong id="receptionRayon" style="color:#2563eb;"></strong>
             </div>
-            <div style="font-size:13px; font-weight:700; color:#059669; margin-top:4px;">
-              Stock physique actuel : <span id="receptionStockActuel">0</span> unités
+            <div style="font-size:13px; font-weight:700; color:#475569; margin-top:4px;">
+              Stock physique actuel en rayon : <span id="receptionStockActuel" style="color:#0f172a; font-weight:900;">0</span> unités
             </div>
           </div>
         </div>
 
-        <div style="background:#f1f5f9; border-radius:8px; padding:12px; margin-bottom:12px;">
-          <label style="font-size:12px; font-weight:700; color:#334155;">Quantité reçue à ajouter au stock *</label>
-          <div style="display:flex; gap:8px; align-items:center; margin-top:6px;">
-            <input type="number" id="receptionQteAjout" value="10" min="1" style="width:120px; font-size:18px; font-weight:800; text-align:center; padding:6px;">
+        <div style="background:#f1f5f9; border-radius:10px; padding:14px; margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <label style="font-size:13px; font-weight:800; color:#1e293b;">Quantité reçue à ajouter au stock *</label>
+            <span id="receptionCalculPrevisionnel" style="font-size:12px; font-weight:700; color:#059669;">
+              Nouveau stock prévu : <strong>0</strong> unités
+            </span>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <input type="number" id="receptionQteAjout" value="10" min="1" oninput="mettreAJourCalculStock()" style="width:110px; font-size:18px; font-weight:800; text-align:center; padding:8px; border:2px solid #2563eb; border-radius:8px;">
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button class="btn-secondary" onclick="receptionChangerQte(1)">+1</button>
-              <button class="btn-secondary" onclick="receptionChangerQte(5)">+5</button>
-              <button class="btn-secondary" onclick="receptionChangerQte(10)">+10</button>
-              <button class="btn-secondary" onclick="receptionChangerQte(25)">+25</button>
-              <button class="btn-secondary" onclick="receptionChangerQte(50)">+50</button>
-              <button class="btn-secondary" onclick="receptionChangerQte(100)">+100</button>
+              <button class="btn-secondary" style="font-weight:700; padding:6px 10px;" onclick="receptionChangerQte(1)">+1</button>
+              <button class="btn-secondary" style="font-weight:700; padding:6px 10px;" onclick="receptionChangerQte(5)">+5</button>
+              <button class="btn-secondary" style="font-weight:700; padding:6px 10px;" onclick="receptionChangerQte(10)">+10</button>
+              <button class="btn-secondary" style="font-weight:700; padding:6px 10px;" onclick="receptionChangerQte(25)">+25</button>
+              <button class="btn-secondary" style="font-weight:700; padding:6px 10px;" onclick="receptionChangerQte(50)">+50</button>
+              <button class="btn-secondary" style="font-weight:700; padding:6px 10px;" onclick="receptionChangerQte(100)">+100</button>
             </div>
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:14px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:16px;">
           <div class="form-group" style="margin-bottom:0;">
             <label style="font-size:11px; font-weight:700;">Fournisseur / N° Bon d'Entrée</label>
-            <input type="text" id="receptionFournisseur" placeholder="Ex: Arrivage Conakry #452" style="font-size:12px;">
+            <input type="text" id="receptionFournisseur" placeholder="Ex: Arrivage Principal / Conakry" style="font-size:12px;">
           </div>
           <div class="form-group" style="margin-bottom:0;">
             <label style="font-size:11px; font-weight:700;">N° Lot / Date péremption (FEFO)</label>
@@ -1289,15 +1326,15 @@
         </div>
 
         <div style="display:flex; gap:10px;">
-          <button class="btn-modal-primary" style="flex:2; background:#059669;" onclick="validerEntreeStock(false)">✅ Valider l'Entrée en Stock</button>
-          <button class="btn-modal-primary" style="flex:2; background:#0d9488;" onclick="validerEntreeStock(true)">🏷️ Valider & Imprimer Étiquettes</button>
+          <button class="btn-modal-primary" style="flex:2; background:#059669; padding:12px; font-size:14px; font-weight:800;" onclick="validerEntreeStock(false)">✅ Valider l'Entrée en Stock</button>
+          <button class="btn-modal-primary" style="flex:2; background:#0d9488; padding:12px; font-size:14px; font-weight:800;" onclick="validerEntreeStock(true)">🏷️ Valider & Imprimer Étiquettes QR</button>
         </div>
       </div>
 
       <!-- Journal récent des entrées -->
       <div>
         <h4 style="font-size:13px; font-weight:800; color:#334155; margin-bottom:8px;">Historique des dernières réceptions</h4>
-        <div id="receptionJournalRecents" style="max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;"></div>
+        <div id="receptionJournalRecents" style="max-height:150px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;"></div>
       </div>
 
       <div style="display:flex; justify-content:flex-end; margin-top:14px; border-top:1px solid #e2e8f0; padding-top:10px;">
@@ -2432,34 +2469,77 @@
       }
     }
 
-    // ÉCOUTEUR SCANNER CODE-BARRES
+    // ÉCOUTEUR SCANNER CODE-BARRES INTELLIGENT
+    function trouverProduitParCode(codeScanne) {
+      if (!codeScanne) return null;
+      const raw = String(codeScanne).replace(/[\r\n\t]/g, '').trim();
+      const c = raw.toLowerCase();
+
+      // 1. Recherche exacte par code
+      let p = catalogue.find(item => item.code && item.code.trim().toLowerCase() === c);
+      if (p) return p;
+
+      // 2. Recherche par ID direct (ex: "101", 101, "#101", "art-101")
+      p = catalogue.find(item => {
+        const idStr = String(item.id).toLowerCase();
+        return idStr === c || ('#' + idStr) === c || ('art-' + idStr) === c;
+      });
+      if (p) return p;
+
+      // 3. Recherche si le code contient la référence ou inversement
+      p = catalogue.find(item => item.code && (item.code.toLowerCase().includes(c) || c.includes(item.code.toLowerCase())));
+      if (p) return p;
+
+      // 4. Recherche par nom partiel (si longueur >= 3)
+      if (c.length >= 3) {
+        p = catalogue.find(item => item.nom && item.nom.toLowerCase().includes(c));
+        if (p) return p;
+      }
+
+      return null;
+    }
+
     let scanBuffer = '';
     let lastKeyTime = Date.now();
     window.addEventListener('keydown', (e) => {
-      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+      const activeEl = document.activeElement;
+      const targetTag = (activeEl && activeEl.tagName) || '';
+      const isInput = ['INPUT', 'SELECT', 'TEXTAREA'].includes(targetTag);
+      const isScanReceptionInput = (activeEl && activeEl.id === 'inputScanReception');
+
       const currentTime = Date.now();
-      if (currentTime - lastKeyTime > 100) scanBuffer = '';
+      // Les douchettes scannent à haute fréquence (< 80ms par touche)
+      if (currentTime - lastKeyTime > 80) scanBuffer = '';
       lastKeyTime = currentTime;
 
       if (e.key === 'Enter') {
-        if (scanBuffer.length >= 2) {
-          const codeScanne = scanBuffer.trim();
-          scanBuffer = '';
+        if (isInput && !isScanReceptionInput && scanBuffer.length < 3) return;
+
+        const codeScanne = (isScanReceptionInput && activeEl.value.trim().length > 0)
+          ? activeEl.value.trim()
+          : scanBuffer.trim();
+
+        if (codeScanne.length >= 2) {
           e.preventDefault();
+          scanBuffer = '';
 
           const receptionModal = document.getElementById('modalReceptionStock');
           if (receptionModal && receptionModal.style.display === 'flex') {
             traiterScanReception(codeScanne);
           } else {
-            const match = catalogue.find(p => p.code && p.code.toLowerCase() === codeScanne.toLowerCase());
+            const match = trouverProduitParCode(codeScanne);
             if (match) {
+              playBeep(980, 0.12);
               ajouterAuPanier(match.id);
             } else {
               playBeep(440, 0.2);
-              alert('Code scanné introuvable dans le catalogue : ' + codeScanne + '\n\nOuvrez "📦 Entrée Stock" pour enregistrer ce nouvel arrivage.');
+              if (confirm(`Code scanné introuvable dans le catalogue : [${codeScanne}]\n\nVoulez-vous ouvrir "📦 Entrée Stock" pour enregistrer cet arrivage ?`)) {
+                ouvrirModalReception(codeScanne);
+              }
             }
           }
         }
+        scanBuffer = '';
       } else if (e.key.length === 1) {
         scanBuffer += e.key;
       }
@@ -2743,15 +2823,24 @@
     let produitEnReception = null;
     let historiqueReceptions = JSON.parse(localStorage.getItem('boutique_pro_receptions_v1') || '[]');
 
-    function ouvrirModalReception() {
+    function ouvrirModalReception(codeOptionnel) {
       produitEnReception = null;
+      document.getElementById('receptionAlerteInconnu').style.display = 'none';
       document.getElementById('receptionProduitDetails').style.display = 'none';
-      document.getElementById('inputScanReception').value = '';
+      document.getElementById('inputScanReception').value = codeOptionnel || '';
+
+      peuplerSelectManuelReception();
       actualiserJournalRecentsReception();
       document.getElementById('modalReceptionStock').style.display = 'flex';
+
       setTimeout(() => {
-        document.getElementById('inputScanReception').focus();
-      }, 200);
+        const inp = document.getElementById('inputScanReception');
+        inp.focus();
+        if (codeOptionnel) {
+          inp.select();
+          traiterScanReception(codeOptionnel);
+        }
+      }, 150);
     }
 
     function fermerModalReception() {
@@ -2759,31 +2848,94 @@
       produitEnReception = null;
     }
 
-    function traiterScanReception(code) {
-      if (!code) return;
-      code = code.trim();
-      document.getElementById('inputScanReception').value = code;
+    function peuplerSelectManuelReception() {
+      const sel = document.getElementById('receptionSelectManuel');
+      if (!sel) return;
 
-      // Recherche dans le catalogue
-      const match = catalogue.find(p => p.code && p.code.toLowerCase() === code.toLowerCase());
+      const secteursNom = {
+        'auto_moto': '🚗 Pièces Auto & Moto',
+        'electricite': '⚡ Électricité & Énergie',
+        'plomberie': '🔧 Plomberie & Sanitaire',
+        'pharmacie': '💊 Pharmacie & Santé',
+        'epicerie': '🛒 Alimentation & Boissons'
+      };
+
+      const groupes = {};
+      catalogue.forEach(p => {
+        const sec = p.secteur || 'autre';
+        if (!groupes[sec]) groupes[sec] = [];
+        groupes[sec].push(p);
+      });
+
+      let html = '<option value="">-- Cliquez pour choisir un article existant --</option>';
+      for (const [secKey, prods] of Object.entries(groupes)) {
+        const secTitre = secteursNom[secKey] || secKey.toUpperCase();
+        html += `<optgroup label="${secTitre}">`;
+        prods.forEach(p => {
+          html += `<option value="${p.id}">${p.nom} [Réf: ${p.code || '#' + p.id} | Stock: ${p.stock}]</option>`;
+        });
+        html += `</optgroup>`;
+      }
+      sel.innerHTML = html;
+    }
+
+    function choisirProduitManuelReception(prodId) {
+      if (!prodId) return;
+      const p = catalogue.find(item => item.id == prodId);
+      if (p) {
+        document.getElementById('inputScanReception').value = p.code || ('ART-' + p.id);
+        afficherProduitEnReception(p);
+      }
+    }
+
+    function traiterScanReception(rawCode) {
+      if (!rawCode) return;
+      const code = String(rawCode).replace(/[\r\n\t]/g, '').trim();
+      if (!code) return;
+
+      document.getElementById('inputScanReception').value = code;
+      document.getElementById('receptionAlerteInconnu').style.display = 'none';
+
+      const match = trouverProduitParCode(code);
       if (match) {
-        playBeep(950, 0.1);
-        produitEnReception = match;
-        document.getElementById('receptionImg').src = match.image;
-        document.getElementById('receptionNom').textContent = match.nom;
-        document.getElementById('receptionCode').textContent = match.code;
-        document.getElementById('receptionRayon').textContent = match.categorie.toUpperCase();
-        document.getElementById('receptionStockActuel').textContent = match.stock;
-        document.getElementById('receptionQteAjout').value = 10;
-        document.getElementById('receptionProduitDetails').style.display = 'block';
+        playBeep(980, 0.12);
+        afficherProduitEnReception(match);
       } else {
-        playBeep(650, 0.15);
-        if (confirm(`Nouveau carton détecté avec le code [${code}] !\n\nCe produit n'existe pas encore dans le catalogue.\nVoulez-vous créer sa fiche maintenant ?`)) {
-          fermerModalReception();
-          ouvrirModalAjout();
-          document.getElementById('nouveauCode').value = code;
-          document.getElementById('nouveauNom').focus();
-        }
+        playBeep(440, 0.2);
+        document.getElementById('spanCodeInconnu').textContent = code;
+        document.getElementById('receptionAlerteInconnu').style.display = 'block';
+        document.getElementById('receptionProduitDetails').style.display = 'none';
+      }
+    }
+
+    function afficherProduitEnReception(p) {
+      produitEnReception = p;
+      document.getElementById('receptionAlerteInconnu').style.display = 'none';
+      document.getElementById('receptionImg').src = p.image || './assets/products/batterie_voiture.jpg';
+      document.getElementById('receptionNom').textContent = p.nom;
+      document.getElementById('receptionCode').textContent = p.code || ('ART-' + p.id);
+      document.getElementById('receptionRayon').textContent = (p.categorie || p.secteur || '').toUpperCase();
+      document.getElementById('receptionStockActuel').textContent = p.stock;
+
+      const sel = document.getElementById('receptionSelectManuel');
+      if (sel) sel.value = p.id;
+
+      const inputQte = document.getElementById('receptionQteAjout');
+      if (!inputQte.value || parseInt(inputQte.value, 10) < 1) {
+        inputQte.value = 10;
+      }
+      mettreAJourCalculStock();
+      document.getElementById('receptionProduitDetails').style.display = 'block';
+    }
+
+    function mettreAJourCalculStock() {
+      if (!produitEnReception) return;
+      const inputQte = document.getElementById('receptionQteAjout');
+      const qte = parseInt(inputQte.value, 10) || 0;
+      const total = (produitEnReception.stock || 0) + (qte > 0 ? qte : 0);
+      const el = document.getElementById('receptionCalculPrevisionnel');
+      if (el) {
+        el.innerHTML = `Stock physique : <strong>${produitEnReception.stock}</strong> + <strong style="color:#2563eb;">${qte}</strong> = <strong style="color:#059669; font-size:14px;">${total} unités</strong>`;
       }
     }
 
@@ -2793,32 +2945,51 @@
       val += delta;
       if (val < 1) val = 1;
       input.value = val;
+      mettreAJourCalculStock();
+    }
+
+    function masquerAlerteInconnu() {
+      document.getElementById('receptionAlerteInconnu').style.display = 'none';
+      document.getElementById('inputScanReception').focus();
+    }
+
+    function creerArticleDepuisReception() {
+      const code = document.getElementById('spanCodeInconnu').textContent.trim();
+      fermerModalReception();
+      ouvrirModalAjout();
+      if (code) {
+        document.getElementById('nouveauCode').value = code;
+      }
+      document.getElementById('nouveauNom').focus();
     }
 
     function validerEntreeStock(avecImpression) {
-      if (!produitEnReception) return;
+      if (!produitEnReception) {
+        alert('Veuillez d\'abord flasher ou sélectionner un article.');
+        return;
+      }
 
       const qte = parseInt(document.getElementById('receptionQteAjout').value, 10) || 0;
       if (qte <= 0) {
-        alert('Veuillez saisir une quantité strictement positive.');
+        alert('Veuillez saisir une quantité reçue strictement positive.');
         return;
       }
 
       const fournisseur = document.getElementById('receptionFournisseur').value.trim() || 'Arrivage Direct';
-      const lot = document.getElementById('receptionLot').value.trim() || 'LOT-' + new Date().toISOString().slice(0, 10);
+      const lot = document.getElementById('receptionLot').value.trim() || ('LOT-' + new Date().toISOString().slice(0, 10));
 
-      // Mise à jour du stock
+      const ancienStock = produitEnReception.stock;
       produitEnReception.stock += qte;
       sauvegarderCatalogue();
       afficherProduits();
 
-      // Enregistrement du mouvement d'entrée
       const mouvement = {
         id: Date.now(),
         type: 'ENTREE_STOCK',
         produitId: produitEnReception.id,
         nom: produitEnReception.nom,
-        code: produitEnReception.code,
+        code: produitEnReception.code || ('ART-' + produitEnReception.id),
+        ancienStock: ancienStock,
         quantite: qte,
         stockFinal: produitEnReception.stock,
         fournisseur: fournisseur,
@@ -2830,8 +3001,8 @@
       historiqueReceptions.unshift(mouvement);
       localStorage.setItem('boutique_pro_receptions_v1', JSON.stringify(historiqueReceptions.slice(0, 50)));
 
-      playBeep(1200, 0.15);
-      alert(`✅ Rentrée de stock validée !\n\n+${qte} unités ajoutées à "${produitEnReception.nom}".\nNouveau stock physique : ${produitEnReception.stock} unités.`);
+      playBeep(1200, 0.18);
+      alert(`✅ Rentrée de stock validée avec succès !\n\n• Article : ${produitEnReception.nom}\n• Quantité reçue : +${qte} unités\n• Nouveau stock physique : ${produitEnReception.stock} unités\n• N° Lot / Fournisseur : ${lot} / ${fournisseur}`);
 
       const idProdCible = produitEnReception.id;
       const qteEtiquettes = qte;
@@ -2955,19 +3126,47 @@
     }
 
     function genererApercuSymboleHTML(type, code, callback) {
+      const cleanCode = (code || '101').toString().trim();
+
+      // 1. Priorité BWIP-JS (Moteur vectoriel officiel professionnel)
+      if (typeof bwipjs !== 'undefined' && typeof bwipjs.toSVG === 'function') {
+        try {
+          let bcid = 'qrcode';
+          let scale = 2;
+          if (type === 'qrcode') { bcid = 'qrcode'; scale = 2; }
+          else if (type === 'datamatrix') { bcid = 'datamatrix'; scale = 3; }
+          else if (type === 'azteccode') { bcid = 'azteccode'; scale = 2; }
+          else if (type === 'code128') { bcid = 'code128'; scale = 2; }
+          else if (type === 'ean13') { bcid = 'ean13'; scale = 2; }
+
+          const svg = bwipjs.toSVG({
+            bcid: bcid,
+            text: cleanCode,
+            scale: scale,
+            height: (type === 'code128' || type === 'ean13') ? 12 : undefined,
+            includetext: (type === 'code128' || type === 'ean13'),
+            textxalign: 'center'
+          });
+          if (svg) return callback(svg);
+        } catch (err) {
+          console.warn('bwipjs toSVG error, fallback to SVG:', err);
+        }
+      }
+
+      // 2. Fallback QRCode si type === 'qrcode'
       if (type === 'qrcode') {
         if (typeof QRCode !== 'undefined' && QRCode.toString) {
-          QRCode.toString(code, { type: 'svg', margin: 1, width: 80 }, (err, svg) => {
+          QRCode.toString(cleanCode, { type: 'svg', margin: 1, width: 80 }, (err, svg) => {
             if (!err && svg) callback(svg);
-            else callback(genererDataMatrixSVG(code));
+            else callback(genererDataMatrixSVG(cleanCode));
           });
         } else {
-          callback(genererDataMatrixSVG(code));
+          callback(genererDataMatrixSVG(cleanCode));
         }
       } else if (type === 'code128') {
-        callback(genererCode128SVG(code));
+        callback(genererCode128SVG(cleanCode));
       } else {
-        callback(genererDataMatrixSVG(code));
+        callback(genererDataMatrixSVG(cleanCode));
       }
     }
 
