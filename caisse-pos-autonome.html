@@ -780,7 +780,7 @@
     background: #ffffff;
     border: 2px dashed #94a3b8;
     border-radius: 8px;
-    padding: 12px;
+    padding: 10px 12px;
     color: #000000;
     font-family: 'Plus Jakarta Sans', sans-serif;
     display: flex;
@@ -789,20 +789,30 @@
     page-break-inside: avoid;
     box-sizing: border-box;
     position: relative;
+    max-width: 100%;
+    word-break: break-word;
   }
   .etiquette-carton {
-    width: 330px;
-    min-height: 195px;
+    width: 300px;
+    max-width: 100%;
+    min-height: 185px;
   }
   .etiquette-rayon {
-    width: 230px;
-    min-height: 140px;
+    width: 220px;
+    max-width: 100%;
+    min-height: 135px;
     padding: 8px;
   }
   .etiquette-thermique {
-    width: 290px;
-    min-height: 200px;
+    width: 270px;
+    max-width: 100%;
+    min-height: 190px;
     border: 1px solid #000;
+  }
+  .etiquette-card svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
   }
 
   @media print {
@@ -1345,7 +1355,7 @@
 
   <!-- MODAL STUDIO D'IMPRESSION D'ÉTIQUETTES CARTON / RAYON -->
   <div class="modal-overlay" id="modalImprimerEtiquette">
-    <div class="modal-content" style="width: 740px; max-width: 95%;">
+    <div class="modal-content" style="width: 820px; max-width: 95%; max-height: 94vh; overflow-y: auto; overflow-x: hidden;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
         <h3 style="font-size: 19px; font-weight: 800; color: #0f172a; display:flex; align-items:center; gap:8px;">
           🏷️ Studio d'Impression d'Étiquettes Carton & QR
@@ -1353,7 +1363,7 @@
         <span style="font-size:12px; font-weight:700; color:#0d9488; background:#ccfbf1; padding:4px 10px; border-radius:6px;">100% Compatible Scanner</span>
       </div>
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+      <div style="display:grid; grid-template-columns: minmax(280px, 1fr) minmax(310px, 1.1fr); gap:16px; align-items:start;">
         <!-- Colonne Gauche : Paramètres de l'étiquette -->
         <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:14px;">
           <div class="form-group">
@@ -1396,7 +1406,7 @@
         <!-- Colonne Droite : Aperçu en Direct Haute Définition -->
         <div>
           <label style="font-size:12px; font-weight:700; color:#334155; margin-bottom:6px; display:block;">Aperçu de l'étiquette carton :</label>
-          <div id="etiquettePreviewWrapper" style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:16px; min-height:220px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.06);">
+          <div id="etiquettePreviewWrapper" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:14px; min-height:220px; display:flex; align-items:center; justify-content:center; box-sizing:border-box; width:100%; overflow:hidden;">
             <div id="etiquetteCardApercu" class="etiquette-card etiquette-carton"></div>
           </div>
         </div>
@@ -3139,7 +3149,7 @@
           else if (type === 'code128') { bcid = 'code128'; scale = 2; }
           else if (type === 'ean13') { bcid = 'ean13'; scale = 2; }
 
-          const svg = bwipjs.toSVG({
+          let svg = bwipjs.toSVG({
             bcid: bcid,
             text: cleanCode,
             scale: scale,
@@ -3147,7 +3157,15 @@
             includetext: (type === 'code128' || type === 'ean13'),
             textxalign: 'center'
           });
-          if (svg) return callback(svg);
+
+          if (svg) {
+            if (type === 'code128' || type === 'ean13') {
+              svg = svg.replace(/<svg\b([^>]*)>/i, '<svg $1 style="width:100%; max-width:180px; height:42px; display:block; margin:auto;">');
+            } else {
+              svg = svg.replace(/<svg\b([^>]*)>/i, '<svg $1 style="width:72px; height:72px; max-width:100%; max-height:100%; display:block; margin:auto;">');
+            }
+            return callback(svg);
+          }
         } catch (err) {
           console.warn('bwipjs toSVG error, fallback to SVG:', err);
         }
@@ -3156,8 +3174,8 @@
       // 2. Fallback QRCode si type === 'qrcode'
       if (type === 'qrcode') {
         if (typeof QRCode !== 'undefined' && QRCode.toString) {
-          QRCode.toString(cleanCode, { type: 'svg', margin: 1, width: 80 }, (err, svg) => {
-            if (!err && svg) callback(svg);
+          QRCode.toString(cleanCode, { type: 'svg', margin: 1, width: 72 }, (err, svg) => {
+            if (!err && svg) return callback(svg);
             else callback(genererDataMatrixSVG(cleanCode));
           });
         } else {
@@ -3185,24 +3203,24 @@
         container.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #000; padding-bottom:3px; margin-bottom:5px;">
             <span style="font-size:11px; font-weight:800; letter-spacing:0.5px;">AFRINEX BOUTIQUE</span>
-            <span style="font-size:9px; font-weight:700; background:#000; color:#fff; padding:1px 5px; border-radius:3px;">${p.secteur.toUpperCase()}</span>
+            <span style="font-size:9px; font-weight:700; background:#000; color:#fff; padding:1px 5px; border-radius:3px;">${(p.secteur || 'Boutique').toUpperCase()}</span>
           </div>
-          <div style="font-size:${format === 'carton' ? '14px' : '11px'}; font-weight:800; line-height:1.2; margin-bottom:4px; color:#000;">
+          <div style="font-size:${format === 'carton' ? '14px' : '11px'}; font-weight:800; line-height:1.2; margin-bottom:4px; color:#000; word-break:break-word;">
             ${p.nom}
           </div>
-          <div style="display:flex; gap:8px; align-items:center; margin:4px 0;">
-            <div style="flex-shrink:0;">
+          <div style="display:flex; gap:10px; align-items:center; margin:6px 0;">
+            <div style="flex-shrink:0; width:72px; height:72px; display:flex; align-items:center; justify-content:center;">
               ${symboleSvg}
             </div>
-            <div style="flex:1;">
+            <div style="flex:1; min-width:0; overflow:hidden;">
               <div style="font-size:9px; color:#555;">Réf / Code :</div>
-              <div style="font-size:12px; font-weight:900; font-family:monospace; color:#000;">${p.code || '#' + p.id}</div>
-              <div style="font-size:9px; color:#666; margin-top:2px;">Lot: ${lot}</div>
+              <div style="font-size:11px; font-weight:900; font-family:monospace; color:#000; word-break:break-all; line-height:1.2;">${p.code || '#' + p.id}</div>
+              <div style="font-size:9px; color:#666; margin-top:3px;">Lot: ${lot}</div>
             </div>
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid #000; padding-top:3px; margin-top:3px;">
-            <span style="font-size:9px; font-weight:600; color:#444;">PRIX PUBLIC</span>
-            <span style="font-size:${format === 'carton' ? '18px' : '14px'}; font-weight:900; color:#000;">${formatPrix(p)}</span>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid #000; padding-top:4px; margin-top:4px;">
+            <span style="font-size:9px; font-weight:700; color:#444; letter-spacing:0.5px;">PRIX PUBLIC</span>
+            <span style="font-size:${format === 'carton' ? '16px' : '13px'}; font-weight:900; color:#000; white-space:nowrap;">${formatPrix(p)}</span>
           </div>
         `;
       });
@@ -3222,24 +3240,24 @@
           <div class="etiquette-card ${format === 'carton' ? 'etiquette-carton' : format === 'rayon' ? 'etiquette-rayon' : 'etiquette-thermique'}" style="border:1px solid #000; margin:4px;">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #000; padding-bottom:3px; margin-bottom:5px;">
               <span style="font-size:11px; font-weight:800; letter-spacing:0.5px;">AFRINEX BOUTIQUE</span>
-              <span style="font-size:9px; font-weight:700; background:#000; color:#fff; padding:1px 5px; border-radius:3px;">${produitEtiquetteSelectionne.secteur.toUpperCase()}</span>
+              <span style="font-size:9px; font-weight:700; background:#000; color:#fff; padding:1px 5px; border-radius:3px;">${(produitEtiquetteSelectionne.secteur || 'Boutique').toUpperCase()}</span>
             </div>
-            <div style="font-size:${format === 'carton' ? '14px' : '11px'}; font-weight:800; line-height:1.2; margin-bottom:4px; color:#000;">
+            <div style="font-size:${format === 'carton' ? '14px' : '11px'}; font-weight:800; line-height:1.2; margin-bottom:4px; color:#000; word-break:break-word;">
               ${produitEtiquetteSelectionne.nom}
             </div>
-            <div style="display:flex; gap:8px; align-items:center; margin:4px 0;">
-              <div style="flex-shrink:0;">
+            <div style="display:flex; gap:10px; align-items:center; margin:6px 0;">
+              <div style="flex-shrink:0; width:72px; height:72px; display:flex; align-items:center; justify-content:center;">
                 ${symboleSvg}
               </div>
-              <div style="flex:1;">
+              <div style="flex:1; min-width:0; overflow:hidden;">
                 <div style="font-size:9px; color:#555;">Réf / Code :</div>
-                <div style="font-size:12px; font-weight:900; font-family:monospace; color:#000;">${produitEtiquetteSelectionne.code || '#' + produitEtiquetteSelectionne.id}</div>
-                <div style="font-size:9px; color:#666; margin-top:2px;">Lot: ${lot}</div>
+                <div style="font-size:11px; font-weight:900; font-family:monospace; color:#000; word-break:break-all; line-height:1.2;">${produitEtiquetteSelectionne.code || '#' + produitEtiquetteSelectionne.id}</div>
+                <div style="font-size:9px; color:#666; margin-top:3px;">Lot: ${lot}</div>
               </div>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid #000; padding-top:3px; margin-top:3px;">
-              <span style="font-size:9px; font-weight:600; color:#444;">PRIX PUBLIC</span>
-              <span style="font-size:${format === 'carton' ? '18px' : '14px'}; font-weight:900; color:#000;">${formatPrix(produitEtiquetteSelectionne)}</span>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid #000; padding-top:4px; margin-top:4px;">
+              <span style="font-size:9px; font-weight:700; color:#444; letter-spacing:0.5px;">PRIX PUBLIC</span>
+              <span style="font-size:${format === 'carton' ? '16px' : '13px'}; font-weight:900; color:#000; white-space:nowrap;">${formatPrix(produitEtiquetteSelectionne)}</span>
             </div>
           </div>
         `;
