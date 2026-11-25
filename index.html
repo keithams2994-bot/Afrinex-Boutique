@@ -1,0 +1,1661 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boutique Pro POS â€” Caisse Multi-Secteurs Dynamique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-app: #f1f5f9;
+    --sidebar-bg: #ffffff;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --primary: #2563eb;
+    --green-badge: #10b981;
+    --orange-om: #ff7900;
+    --yellow-mtn: #ffcc00;
+    --blue-cb: #2563eb;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --shadow-card: 0 4px 18px rgba(15, 23, 42, 0.05);
+    --shadow-hover: 0 10px 25px rgba(37, 99, 235, 0.12);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background: var(--bg-app);
+    color: var(--text-main);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* 1. SIDEBAR VERTICALE GAUCHE */
+  .sidebar {
+    width: 76px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    gap: 12px;
+    z-index: 20;
+    flex-shrink: 0;
+  }
+
+  .app-logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #3b82f6, #10b981, #f59e0b, #ec4899);
+    padding: 2px;
+  }
+
+  .app-logo-inner {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 20px;
+    color: #2563eb;
+  }
+
+  .nav-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 20px;
+  }
+
+  .nav-btn:hover { background: #f8fafc; color: var(--primary); }
+  .nav-btn.active {
+    background: #0f172a;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  /* 2. ZONE CENTRALE (CATALOGUE & HEADER) */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 18px 22px;
+    overflow-y: auto;
+    min-width: 0;
+  }
+
+  .top-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .header-titles h1 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-titles span {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* SÃ‰LECTEUR DE SECTEUR D'ACTIVITÃ‰ */
+  .sector-selector-wrap {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 4px 10px;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  }
+
+  .sector-selector-wrap label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #64748b;
+  }
+
+  .sector-select {
+    border: none;
+    outline: none;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .offline-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #10b981;
+    color: #ffffff;
+    padding: 7px 16px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25);
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #ffffff;
+    border-radius: 50%;
+    animation: pulse 1.6s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.8; }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .currency-switcher {
+    display: flex;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 3px;
+  }
+
+  .currency-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .currency-btn.active {
+    background: #0f172a;
+    color: #ffffff;
+  }
+
+  .search-box {
+    position: relative;
+    width: 200px;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 8px 14px 8px 34px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #ffffff;
+    font-size: 13px;
+    color: #0f172a;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+  }
+
+  .search-box input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .btn-add-product {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+
+  .btn-add-product:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  }
+
+  /* BARRE DES CATÃ‰GORIES (RAYONS) */
+  .categories-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .cat-pill {
+    padding: 8px 18px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: #ffffff;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.18s;
+  }
+
+  .cat-pill:hover { border-color: #cbd5e1; background: #f8fafc; }
+  .cat-pill.active {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  }
+
+  /* GRILLE DES PRODUITS */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 16px;
+    padding-bottom: 20px;
+  }
+
+  .product-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-card);
+    position: relative;
+    user-select: none;
+  }
+
+  .product-card:hover {
+    transform: translateY(-3px);
+    border-color: #93c5fd;
+    box-shadow: var(--shadow-hover);
+  }
+
+  .product-card:active { transform: scale(0.98); }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .badge-category {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 8px;
+    text-transform: capitalize;
+  }
+
+  .badge-auto { background: #fee2e2; color: #b91c1c; }
+  .badge-elec { background: #fef3c7; color: #b45309; }
+  .badge-plomb { background: #e0f2fe; color: #0369a1; }
+  .badge-pharma { background: #dcfce7; color: #15803d; }
+  .badge-epice { background: #ffedd5; color: #c2410c; }
+
+  .card-code {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+  }
+
+  .product-img-wrapper {
+    height: 125px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 8px 0;
+    background: #f8fafc;
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 6px;
+  }
+
+  .product-img-wrapper img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    transition: transform 0.25s ease;
+  }
+
+  .product-card:hover .product-img-wrapper img { transform: scale(1.05); }
+
+  .product-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 4px;
+    line-height: 1.25;
+    height: 36px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .product-price {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 4px;
+  }
+
+  .product-stock {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .stock-low { color: #dc2626 !important; font-weight: 700; }
+
+  .in-cart-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #2563eb;
+    color: #ffffff;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+  }
+
+  /* 3. PANNEAU DE DROITE (TICKET DE CAISSE) */
+  .checkout-panel {
+    width: 390px;
+    background: #ffffff;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 18px;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.02);
+    flex-shrink: 0;
+  }
+
+  .ticket-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+
+  .ticket-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #0f172a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .ticket-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  .cart-items-container {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cart-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid #f1f5f9;
+  }
+
+  .cart-item-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 4px;
+  }
+
+  .btn-qty {
+    width: 20px;
+    height: 20px;
+    background: transparent;
+    border: none;
+    font-weight: 800;
+    cursor: pointer;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border-radius: 4px;
+  }
+
+  .btn-qty:hover { background: #f1f5f9; color: #0f172a; }
+
+  .qty-label {
+    font-size: 13px;
+    font-weight: 800;
+    color: #0f172a;
+    min-width: 16px;
+    text-align: center;
+  }
+
+  .cart-item-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cart-item-price {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-left: 8px;
+  }
+
+  .empty-cart-msg {
+    text-align: center;
+    color: #94a3b8;
+    margin-top: 40px;
+    font-size: 13.5px;
+    font-weight: 500;
+  }
+
+  .ticket-totals {
+    border-top: 1px dashed var(--border);
+    padding-top: 10px;
+    margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .total-row.grand-total {
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+    font-size: 17px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .total-value-big {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .payment-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .btn-pay {
+    padding: 12px 10px;
+    border-radius: 12px;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.18s;
+  }
+
+  .btn-pay:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+  .btn-pay:active { transform: scale(0.98); }
+
+  .pay-especes { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+  .pay-orange { background: #ff7900; color: #ffffff; }
+  .pay-mtn { background: #ffcc00; color: #000000; }
+  .pay-cb { grid-column: span 2; background: #2563eb; color: #ffffff; gap: 10px; }
+
+  .card-logos {
+    background: rgba(255,255,255,0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .bottom-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .btn-secondary {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #f8fafc;
+    color: #334155;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .btn-cancel { color: #dc2626; }
+  .btn-cancel:hover { background: #fee2e2; }
+
+  /* MODALS */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .modal-content {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 24px;
+    width: 440px;
+    max-width: 92vw;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .form-group {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  .form-group input, .form-group select {
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13.5px;
+    color: #0f172a;
+    outline: none;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--primary);
+  }
+
+  .receipt-paper {
+    background: #fffdf5;
+    border: 1px dashed #d1d5db;
+    padding: 16px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #111827;
+    margin: 14px 0;
+    border-radius: 8px;
+  }
+
+  .receipt-center { text-align: center; }
+  .receipt-divider { border-top: 1px dashed #9ca3af; margin: 8px 0; }
+  .receipt-line { display: flex; justify-content: space-between; }
+
+  .btn-modal-primary {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 11px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .btn-modal-close {
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    padding: 11px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #475569;
+  }
+</style>
+</head>
+<body>
+
+  <!-- 1. BARRE LATÃ‰RALE DE NAVIGATION GAUCHE -->
+  <aside class="sidebar">
+    <div class="app-logo" title="Boutique Pro POS">
+      <div class="app-logo-inner">âœ¦</div>
+    </div>
+    <button class="nav-btn active" title="Caisse de Vente">âŠž</button>
+    <button class="nav-btn" title="Ajouter un Produit" onclick="ouvrirModalAjout()">âž•</button>
+    <button class="nav-btn" title="Sauvegarde & Export" onclick="exporterDonnees()">ðŸ’¾</button>
+    <button class="nav-btn" title="Clients" onclick="ouvrirModalClient()">ðŸ‘¥</button>
+    <div class="sidebar-spacer"></div>
+    <button class="nav-btn" title="RÃ©initialiser Catalogue" onclick="reinitialiserCatalogueDefaut()">ðŸ”„</button>
+  </aside>
+
+  <!-- 2. ZONE CENTRALE DE CATALOGUE -->
+  <main class="main-content">
+    
+    <!-- EN-TÃŠTE PRINCIPAL -->
+    <header class="top-header">
+      <div class="header-titles">
+        <h1 id="shopTitleHeader">Boutique Pro Multi-Secteurs</h1>
+        <span id="shopSubtitleHeader">Comptoir de vente & Quincaillerie</span>
+      </div>
+
+      <!-- SÃ‰LECTEUR DE SECTEUR D'ACTIVITÃ‰ -->
+      <div class="sector-selector-wrap">
+        <label>Secteur :</label>
+        <select class="sector-select" id="sectorSelect" onchange="changerSecteur(this.value)">
+          <option value="tout">ðŸŒ Tous les Rayons</option>
+          <option value="auto_moto" selected>ðŸš— PiÃ¨ces Auto & Moto</option>
+          <option value="electricite">âš¡ Ã‰lectricitÃ© & Ã‰nergie</option>
+          <option value="plomberie">ðŸ”§ Plomberie & Sanitaire</option>
+          <option value="pharmacie">ðŸ’Š Pharmacie & SantÃ©</option>
+          <option value="epicerie">ðŸ›’ Ã‰picerie & Alimentation</option>
+        </select>
+      </div>
+
+      <div class="offline-status-pill">
+        <span class="pulse-dot"></span>
+        Mode Hors-ligne Actif
+      </div>
+
+      <div class="header-right">
+        <!-- COMMUTATEUR DE DEVISE (Afrique / International) -->
+        <div class="currency-switcher">
+          <button class="currency-btn active" onclick="setCurrency('GNF')">GNF (FG)</button>
+          <button class="currency-btn" onclick="setCurrency('XOF')">FCFA (F)</button>
+          <button class="currency-btn" onclick="setCurrency('EUR')">EUR (â‚¬)</button>
+          <button class="currency-btn" onclick="setCurrency('USD')">USD ($)</button>
+        </div>
+
+        <!-- RECHERCHE & CODE-BARRES -->
+        <div class="search-box">
+          <span class="search-icon">ðŸ”</span>
+          <input type="text" id="searchInput" placeholder="Recherche ou scan code..." oninput="filtrerProduits()">
+        </div>
+
+        <button class="btn-add-product" onclick="ouvrirModalAjout()">+ Produit</button>
+      </div>
+    </header>
+
+    <!-- PILULES DE CATÃ‰GORIES (RAYONS DU SECTEUR) -->
+    <nav class="categories-bar" id="categoriesBar">
+      <!-- GÃ©nÃ©rÃ©es dynamiquement selon le secteur -->
+    </nav>
+
+    <!-- GRILLE DES PRODUITS DYNAMIQUE -->
+    <section class="products-grid" id="productsGrid">
+      <!-- Cartes de produits gÃ©nÃ©rÃ©es dynamiquement -->
+    </section>
+
+  </main>
+
+  <!-- 3. PANNEAU DE DROITE : TICKET DE CAISSE -->
+  <aside class="checkout-panel">
+    <div class="ticket-header">
+      <div class="ticket-title">
+        <span id="ticketNumberLabel">Ticket #04523</span>
+        <span style="font-size: 13px; font-weight: 600; color: #10b981;">â— En cours</span>
+      </div>
+      <div class="ticket-meta">
+        <span id="clientNameLabel">Client: Comptoir</span>
+        <span id="liveClock">24 Nov 2026, 21:55</span>
+      </div>
+    </div>
+
+    <!-- LISTE DU PANIER -->
+    <div class="cart-items-container" id="cartContainer"></div>
+
+    <!-- TOTAUX CALCULÃ‰S -->
+    <div class="ticket-totals">
+      <div class="total-row">
+        <span>Sous-total:</span>
+        <span id="subtotalLabel">0 GNF</span>
+      </div>
+      <div class="total-row">
+        <span>TVA (18% / 20%):</span>
+        <span id="taxLabel">0 GNF</span>
+      </div>
+      <div class="total-row grand-total">
+        <span>TOTAL Ã€ PAYER:</span>
+        <span class="total-value-big" id="totalLabel">0 GNF</span>
+      </div>
+    </div>
+
+    <!-- BOUTONS DE PAIEMENT CONFORMES -->
+    <div class="payment-actions-grid">
+      <button class="btn-pay pay-especes" onclick="encaisser('EspÃ¨ces')">
+        ðŸ’¶ EspÃ¨ces
+      </button>
+      <button class="btn-pay pay-orange" onclick="encaisser('Orange Money')">
+        Orange Money
+      </button>
+      <button class="btn-pay pay-mtn" onclick="encaisser('MTN Mobile Money')">
+        MTN / Wave
+      </button>
+      <button class="btn-pay pay-cb" onclick="encaisser('Carte Bancaire')">
+        <span>Carte Bancaire</span>
+        <span class="card-logos">VISA â— MC</span>
+      </button>
+    </div>
+
+    <!-- ACTIONS SECONDAIRES -->
+    <div class="bottom-actions">
+      <button class="btn-secondary" onclick="ouvrirModalClient()">ðŸ‘¤ Client</button>
+      <button class="btn-secondary btn-cancel" onclick="viderPanier()">Annuler</button>
+    </div>
+  </aside>
+
+  <!-- MODAL AJOUT D'UN PRODUIT -->
+  <div class="modal-overlay" id="modalAjoutProduit">
+    <div class="modal-content">
+      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 14px;">+ Ajouter un Nouvel Article</h3>
+      
+      <div class="form-group">
+        <label>Nom de l'article *</label>
+        <input type="text" id="nouveauNom" placeholder="Ex: Filtre Ã  carburant Diesel...">
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div class="form-group">
+          <label>Secteur *</label>
+          <select id="nouveauSecteur">
+            <option value="auto_moto">ðŸš— PiÃ¨ces Auto & Moto</option>
+            <option value="electricite">âš¡ Ã‰lectricitÃ©</option>
+            <option value="plomberie">ðŸ”§ Plomberie</option>
+            <option value="pharmacie">ðŸ’Š Pharmacie</option>
+            <option value="epicerie">ðŸ›’ Ã‰picerie</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Rayon / CatÃ©gorie *</label>
+          <input type="text" id="nouvelleCategorie" placeholder="Ex: filtration, freinage...">
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div class="form-group">
+          <label>Prix GNF *</label>
+          <input type="number" id="nouveauPrixGNF" placeholder="Ex: 85000">
+        </div>
+        <div class="form-group">
+          <label>Prix EUR (â‚¬) *</label>
+          <input type="number" step="0.1" id="nouveauPrixEUR" placeholder="Ex: 8.50">
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div class="form-group">
+          <label>Stock Initial *</label>
+          <input type="number" id="nouveauStock" value="20">
+        </div>
+        <div class="form-group">
+          <label>Code-barres / RÃ©f</label>
+          <input type="text" id="nouveauCode" placeholder="Ex: 384920">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Image du produit (TÃ©lÃ©verser ou choisir une photo)</label>
+        <input type="file" id="nouveauFichierImage" accept="image/*" onchange="previsualiserImageUpload(event)">
+        <div id="apercuImageUpload" style="margin-top:6px; text-align:center; display:none;">
+          <img id="imgPreview" style="max-height:80px; border-radius:8px; border:1px solid #cbd5e1;">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:14px;">
+        <button class="btn-modal-primary" style="flex:1;" onclick="enregistrerNouveauProduit()">Enregistrer l'Article</button>
+        <button class="btn-modal-close" style="flex:1;" onclick="fermerModalAjout()">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DU REÃ‡U FISCAL -->
+  <div class="modal-overlay" id="receiptModal">
+    <div class="modal-content">
+      <div style="font-weight: 800; font-size: 18px; text-align: center; color: #0f172a;">Ticket EncaissÃ© avec SuccÃ¨s</div>
+      
+      <div class="receipt-paper" id="receiptPaper">
+        <div class="receipt-center">
+          <strong id="receiptShopName">BOUTIQUE PRO COMPTOIR</strong><br>
+          Caisse nÂ°1 â€” Local-First<br>
+          TÃ©l: +224 620 00 00 00 / +33 1 00 00 00<br>
+          NIF / RCCM : GN-CON-2024-B-8492
+        </div>
+        <div class="receipt-divider"></div>
+        <div class="receipt-line">
+          <span id="receiptTicketNum">Ticket : #04523</span>
+          <span id="receiptDate">24/11/2026</span>
+        </div>
+        <div class="receipt-line">
+          <span id="receiptClient">Client : Comptoir</span>
+          <span id="receiptMode">Paiement : EspÃ¨ces</span>
+        </div>
+        <div class="receipt-divider"></div>
+        <div id="receiptItems"></div>
+        <div class="receipt-divider"></div>
+        <div class="receipt-line">
+          <strong>TOTAL PAYÃ‰ :</strong>
+          <strong id="receiptTotal">0 GNF</strong>
+        </div>
+        <div class="receipt-divider"></div>
+        <div class="receipt-center" style="font-size: 10px; color: #6b7280;">
+          Hash NF525 SÃ©curisÃ© :<br>
+          <span id="receiptHash" style="word-break: break-all;">9e8a...3f12</span><br><br>
+          Merci de votre confiance et Ã  bientÃ´t !
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn-modal-primary" style="flex:1;" onclick="window.print()">ðŸ–¨ï¸ Imprimer ReÃ§u</button>
+        <button class="btn-modal-close" style="flex:1;" onclick="fermerModalReceipt()">Nouvelle Vente</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. CATALOGUE MULTI-SECTEUR INITIAL AVEC VRAIES PHOTOS
+    const CATALOGUE_INITIAL = [
+      // === SECTEUR 1 : PIÃˆCES DÃ‰TACHÃ‰ES AUTO & MOTO ===
+      {
+        id: 101,
+        nom: 'Batterie Voiture 12V 70Ah 640A',
+        secteur: 'auto_moto',
+        categorie: 'electricite',
+        code: 'BAT-70AH',
+        prixEUR: 85.00,
+        prixGNF: 850000,
+        prixXOF: 55000,
+        prixUSD: 92.00,
+        stock: 14,
+        image: './assets/products/batterie_voiture.jpg'
+      },
+      {
+        id: 102,
+        nom: 'Bougie NGK DCPR7E Moto & Auto',
+        secteur: 'auto_moto',
+        categorie: 'allumage',
+        code: 'NGK-DCPR7E',
+        prixEUR: 6.50,
+        prixGNF: 65000,
+        prixXOF: 4200,
+        prixUSD: 7.00,
+        stock: 48,
+        image: './assets/products/bougie_ngk.jpg'
+      },
+      {
+        id: 103,
+        nom: 'Filtre Ã  Huile Moteur PF47',
+        secteur: 'auto_moto',
+        categorie: 'filtration',
+        code: 'FIL-PF47',
+        prixEUR: 8.90,
+        prixGNF: 89000,
+        prixXOF: 5800,
+        prixUSD: 9.50,
+        stock: 35,
+        image: './assets/products/filtre_huile.jpg'
+      },
+      {
+        id: 104,
+        nom: 'Huile SynthÃ©tique 10W-40 Bidon 5L',
+        secteur: 'auto_moto',
+        categorie: 'lubrifiant',
+        code: 'OIL-10W40-5L',
+        prixEUR: 34.00,
+        prixGNF: 340000,
+        prixXOF: 22000,
+        prixUSD: 37.00,
+        stock: 22,
+        image: './assets/products/huile_moteur.jpg'
+      },
+      {
+        id: 105,
+        nom: 'Jeu de Plaquettes de Frein Avant',
+        secteur: 'auto_moto',
+        categorie: 'freinage',
+        code: 'BRK-PADS-01',
+        prixEUR: 28.50,
+        prixGNF: 285000,
+        prixXOF: 18500,
+        prixUSD: 31.00,
+        stock: 19,
+        image: './assets/products/plaquette_frein.svg'
+      },
+      {
+        id: 106,
+        nom: 'Pneu Moto ArriÃ¨re 3.00-17 RenforcÃ©',
+        secteur: 'auto_moto',
+        categorie: 'pneumatique',
+        code: 'TYR-30017',
+        prixEUR: 24.00,
+        prixGNF: 240000,
+        prixXOF: 15500,
+        prixUSD: 26.00,
+        stock: 16,
+        image: './assets/products/pneu_moto.svg'
+      },
+
+      // === SECTEUR 2 : Ã‰LECTRICITÃ‰ & Ã‰NERGIE ===
+      {
+        id: 201,
+        nom: 'Disjoncteur Schneider Acti9 16A',
+        secteur: 'electricite',
+        categorie: 'protection',
+        code: 'SCH-C16',
+        prixEUR: 7.50,
+        prixGNF: 75000,
+        prixXOF: 4900,
+        prixUSD: 8.00,
+        stock: 42,
+        image: './assets/products/disjoncteur.jpg'
+      },
+      {
+        id: 202,
+        nom: 'Fil Ã‰lectrique H07V-U 2.5mmÂ² (100m)',
+        secteur: 'electricite',
+        categorie: 'cables',
+        code: 'CAB-25MM',
+        prixEUR: 42.00,
+        prixGNF: 420000,
+        prixXOF: 27500,
+        prixUSD: 45.00,
+        stock: 18,
+        image: './assets/products/fil_electrique.svg'
+      },
+      {
+        id: 203,
+        nom: 'Ampoule LED E27 12W 6500K',
+        secteur: 'electricite',
+        categorie: 'eclairage',
+        code: 'LED-E27-12W',
+        prixEUR: 2.50,
+        prixGNF: 25000,
+        prixXOF: 1600,
+        prixUSD: 2.70,
+        stock: 75,
+        image: './assets/products/ampoule_led.svg'
+      },
+      {
+        id: 204,
+        nom: 'Piles Duracell Coppertop AA x4',
+        secteur: 'electricite',
+        categorie: 'energie',
+        code: 'DUR-AA4',
+        prixEUR: 7.99,
+        prixGNF: 80000,
+        prixXOF: 5200,
+        prixUSD: 8.70,
+        stock: 39,
+        image: './assets/products/pile_duracell.jpg'
+      },
+
+      // === SECTEUR 3 : PLOMBERIE & SANITAIRE ===
+      {
+        id: 301,
+        nom: 'Vanne d\'ArrÃªt Laiton 1/4 Tour Ã˜20/27',
+        secteur: 'plomberie',
+        categorie: 'vannes',
+        code: 'VAN-LAITON-20',
+        prixEUR: 9.50,
+        prixGNF: 95000,
+        prixXOF: 6200,
+        prixUSD: 10.20,
+        stock: 31,
+        image: './assets/products/vanne_laiton.svg'
+      },
+      {
+        id: 302,
+        nom: 'Mitigeur Lavabo ChromÃ© CÃ©ramique',
+        secteur: 'plomberie',
+        categorie: 'robinetterie',
+        code: 'MIT-CHROME-01',
+        prixEUR: 32.00,
+        prixGNF: 320000,
+        prixXOF: 21000,
+        prixUSD: 35.00,
+        stock: 12,
+        image: './assets/products/mitigeur.svg'
+      },
+
+      // === SECTEUR 4 : PHARMACIE & SANTÃ‰ ===
+      {
+        id: 401,
+        nom: 'Doliprane 500mg 16 ComprimÃ©s',
+        secteur: 'pharmacie',
+        categorie: 'antalgique',
+        code: 'DOL-500MG',
+        prixEUR: 5.50,
+        prixGNF: 55000,
+        prixXOF: 3600,
+        prixUSD: 6.00,
+        stock: 112,
+        image: './assets/products/doliprane.jpg'
+      },
+      {
+        id: 402,
+        nom: 'Vitamine C 1000mg 180 GÃ©lules',
+        secteur: 'pharmacie',
+        categorie: 'vitamines',
+        code: 'VIT-C1000',
+        prixEUR: 12.90,
+        prixGNF: 129000,
+        prixXOF: 8450,
+        prixUSD: 14.00,
+        stock: 65,
+        image: './assets/products/vitamine_c.jpg'
+      },
+
+      // === SECTEUR 5 : Ã‰PICERIE & ALIMENTATION ===
+      {
+        id: 501,
+        nom: 'Pain de mie Complet 14 Tranches',
+        secteur: 'epicerie',
+        categorie: 'boulangerie',
+        code: 'PAIN-COMPLET',
+        prixEUR: 2.20,
+        prixGNF: 22000,
+        prixXOF: 1450,
+        prixUSD: 2.40,
+        stock: 45,
+        image: './assets/products/pain_de_mie.jpg'
+      },
+      {
+        id: 502,
+        nom: 'Coca-Cola Bouteille 1.5L',
+        secteur: 'epicerie',
+        categorie: 'boissons',
+        code: 'COCA-15L',
+        prixEUR: 2.95,
+        prixGNF: 29500,
+        prixXOF: 1950,
+        prixUSD: 3.20,
+        stock: 88,
+        image: './assets/products/coca_cola.jpg'
+      },
+      {
+        id: 503,
+        nom: 'Lait Ã‰crÃ©mÃ© UHT Brique 1L',
+        secteur: 'epicerie',
+        categorie: 'laiterie',
+        code: 'LAIT-1L',
+        prixEUR: 1.65,
+        prixGNF: 16500,
+        prixXOF: 1100,
+        prixUSD: 1.80,
+        stock: 154,
+        image: './assets/products/lait_uht.jpg'
+      }
+    ];
+
+    // GESTION DU STOCKAGE PERSISTANT LOCAL
+    const STORAGE_KEY = 'boutique_pro_catalogue_v2';
+    function chargerCatalogue() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (data) {
+        try { return JSON.parse(data); } catch (e) {}
+      }
+      return CATALOGUE_INITIAL;
+    }
+
+    function sauvegarderCatalogue() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(catalogue));
+    }
+
+    let catalogue = chargerCatalogue();
+    let panier = [];
+    let deviseActive = 'GNF';
+    let secteurActif = 'auto_moto';
+    let categorieFiltre = 'tout';
+    let clientActif = 'Comptoir';
+    let uploadedImageBase64 = null;
+    let ticketSeq = 4523;
+
+    // DÃ©finition des libellÃ©s de secteurs
+    const LABELS_SECTEURS = {
+      'auto_moto': { titre: 'Comptoir PiÃ¨ces Auto & Moto', sousTitre: 'Garages, VÃ©hicules & Deux-Roues' },
+      'electricite': { titre: 'Comptoir Ã‰lectricitÃ© & Ã‰nergie', sousTitre: 'BÃ¢timent, CÃ¢blage & Ã‰clairage' },
+      'plomberie': { titre: 'Quincaillerie Plomberie & Sanitaire', sousTitre: 'Tubes, Vannes & Robinetterie' },
+      'pharmacie': { titre: 'Pharmacie & MatÃ©riel MÃ©dical', sousTitre: 'SantÃ©, MÃ©dicaments & Soins' },
+      'epicerie': { titre: 'Superette & Alimentation GÃ©nÃ©rale', sousTitre: 'Produits Frais & Boissons' },
+      'tout': { titre: 'Boutique Pro Multi-Secteurs', sousTitre: 'Comptoir de vente global' }
+    };
+
+    // AUDIO FEEDBACK
+    function playBeep(freq = 880, duration = 0.05) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    // MULTI-DEVISES
+    function formatPrix(produit) {
+      if (deviseActive === 'GNF') return produit.prixGNF.toLocaleString('fr-FR') + ' GNF';
+      if (deviseActive === 'XOF') return produit.prixXOF.toLocaleString('fr-FR') + ' FCFA';
+      if (deviseActive === 'EUR') return 'â‚¬' + produit.prixEUR.toFixed(2);
+      if (deviseActive === 'USD') return '$' + produit.prixUSD.toFixed(2);
+      return produit.prixGNF.toLocaleString('fr-FR') + ' GNF';
+    }
+
+    function getMontantNumerique(produit) {
+      if (deviseActive === 'GNF') return produit.prixGNF;
+      if (deviseActive === 'XOF') return produit.prixXOF;
+      if (deviseActive === 'EUR') return produit.prixEUR;
+      if (deviseActive === 'USD') return produit.prixUSD;
+      return produit.prixGNF;
+    }
+
+    function formaterTotal(montant) {
+      if (deviseActive === 'GNF') return Math.round(montant).toLocaleString('fr-FR') + ' GNF';
+      if (deviseActive === 'XOF') return Math.round(montant).toLocaleString('fr-FR') + ' FCFA';
+      if (deviseActive === 'EUR') return 'â‚¬' + montant.toFixed(2);
+      if (deviseActive === 'USD') return '$' + montant.toFixed(2);
+      return Math.round(montant).toLocaleString('fr-FR') + ' GNF';
+    }
+
+    function setCurrency(cur) {
+      deviseActive = cur;
+      document.querySelectorAll('.currency-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(cur));
+      });
+      afficherProduits();
+      mettreAJourPanier();
+    }
+
+    // GESTION DU CHANGEMENT DE SECTEUR
+    function changerSecteur(secteur) {
+      secteurActif = secteur;
+      categorieFiltre = 'tout';
+
+      const info = LABELS_SECTEURS[secteur] || LABELS_SECTEURS['tout'];
+      document.getElementById('shopTitleHeader').textContent = info.titre;
+      document.getElementById('shopSubtitleHeader').textContent = info.sousTitre;
+
+      actualiserRayonsCategories();
+      afficherProduits();
+    }
+
+    function actualiserRayonsCategories() {
+      const container = document.getElementById('categoriesBar');
+      const prodsSecteur = secteurActif === 'tout' ? catalogue : catalogue.filter(p => p.secteur === secteurActif);
+
+      const categoriesDispos = Array.from(new Set(prodsSecteur.map(p => p.categorie)));
+
+      let html = `<button class="cat-pill ${categorieFiltre === 'tout' ? 'active' : ''}" onclick="filtrerCategorie('tout', this)">Tous les Rayons</button>`;
+      categoriesDispos.forEach(cat => {
+        html += `<button class="cat-pill ${categorieFiltre === cat ? 'active' : ''}" onclick="filtrerCategorie('${cat}', this)">${cat.toUpperCase()}</button>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function filtrerCategorie(cat, btnEl) {
+      categorieFiltre = cat;
+      document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+      afficherProduits();
+    }
+
+    // RENDU DES PRODUITS DANS LA GRILLE
+    function afficherProduits() {
+      const grid = document.getElementById('productsGrid');
+      const recherche = document.getElementById('searchInput').value.toLowerCase().trim();
+
+      const produitsFiltres = catalogue.filter(prod => {
+        const matchSecteur = (secteurActif === 'tout' || prod.secteur === secteurActif);
+        const matchCategorie = (categorieFiltre === 'tout' || prod.categorie === categorieFiltre);
+        const matchSearch = prod.nom.toLowerCase().includes(recherche) || 
+                            (prod.code && prod.code.toLowerCase().includes(recherche)) ||
+                            prod.categorie.toLowerCase().includes(recherche);
+        return matchSecteur && matchCategorie && matchSearch;
+      });
+
+      if (produitsFiltres.length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#64748b;">Aucun produit trouvÃ© dans ce rayon.<br><button class="btn-add-product" style="margin:12px auto;" onclick="ouvrirModalAjout()">+ Ajouter le premier produit</button></div>';
+        return;
+      }
+
+      grid.innerHTML = produitsFiltres.map(p => {
+        const itemInCart = panier.find(i => i.id === p.id);
+        const count = itemInCart ? itemInCart.quantite : 0;
+        const badgeClass = p.secteur === 'auto_moto' ? 'badge-auto' :
+                           p.secteur === 'electricite' ? 'badge-elec' :
+                           p.secteur === 'plomberie' ? 'badge-plomb' :
+                           p.secteur === 'pharmacie' ? 'badge-pharma' : 'badge-epice';
+
+        return `
+          <div class="product-card" onclick="ajouterAuPanier(${p.id})">
+            ${count > 0 ? `<div class="in-cart-indicator">${count}</div>` : ''}
+            <div class="card-top">
+              <span class="badge-category ${badgeClass}">${p.categorie}</span>
+              <span class="card-code">${p.code || '#' + p.id}</span>
+            </div>
+            <div class="product-img-wrapper">
+              <img src="${p.image}" alt="${p.nom}" loading="lazy" onerror="this.src='./assets/products/doliprane.jpg'">
+            </div>
+            <div class="product-title" title="${p.nom}">${p.nom}</div>
+            <div class="product-price">${formatPrix(p)}</div>
+            <div class="product-stock">
+              <span class="${p.stock < 5 ? 'stock-low' : ''}">Stock: ${p.stock} unitÃ©s</span>
+              ${p.stock <= 0 ? '<span style="color:#dc2626; font-weight:800;">RUPTURE</span>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filtrerProduits() {
+      afficherProduits();
+    }
+
+    // AJOUT AU PANIER
+    function ajouterAuPanier(id) {
+      const prod = catalogue.find(p => p.id === id);
+      if (!prod) return;
+
+      if (prod.stock <= 0) {
+        alert('Attention : Ce produit est en rupture physique de stock.');
+        return;
+      }
+
+      playBeep(980, 0.05);
+      const exist = panier.find(i => i.id === id);
+      if (exist) {
+        if (exist.quantite >= prod.stock) {
+          alert('Stock maximum disponible atteint pour cet article.');
+          return;
+        }
+        exist.quantite++;
+      } else {
+        panier.push({ id, quantite: 1 });
+      }
+      afficherProduits();
+      mettreAJourPanier();
+    }
+
+    function modifierQuantite(id, delta) {
+      playBeep(750, 0.04);
+      const index = panier.findIndex(i => i.id === id);
+      if (index > -1) {
+        const prod = catalogue.find(p => p.id === id);
+        if (delta > 0 && panier[index].quantite >= prod.stock) {
+          alert('Stock insuffisant.');
+          return;
+        }
+        panier[index].quantite += delta;
+        if (panier[index].quantite <= 0) {
+          panier.splice(index, 1);
+        }
+      }
+      afficherProduits();
+      mettreAJourPanier();
+    }
+
+    function viderPanier() {
+      if (panier.length > 0 && confirm('Vider le panier actuel ?')) {
+        panier = [];
+        afficherProduits();
+        mettreAJourPanier();
+      }
+    }
+
+    function mettreAJourPanier() {
+      const container = document.getElementById('cartContainer');
+      if (panier.length === 0) {
+        container.innerHTML = '<div class="empty-cart-msg">Le panier est vide.<br>Cliquez sur un article ou scannez un code-barres.</div>';
+        document.getElementById('subtotalLabel').textContent = formaterTotal(0);
+        document.getElementById('taxLabel').textContent = formaterTotal(0);
+        document.getElementById('totalLabel').textContent = formaterTotal(0);
+        return;
+      }
+
+      let sousTotal = 0;
+      container.innerHTML = panier.map(item => {
+        const prod = catalogue.find(p => p.id === item.id);
+        const montantLigne = getMontantNumerique(prod) * item.quantite;
+        sousTotal += montantLigne;
+
+        return `
+          <div class="cart-item-row">
+            <div class="cart-item-left">
+              <div class="qty-controls">
+                <button class="btn-qty" onclick="modifierQuantite(${prod.id}, -1)">-</button>
+                <span class="qty-label">${item.quantite}</span>
+                <button class="btn-qty" onclick="modifierQuantite(${prod.id}, 1)">+</button>
+              </div>
+              <span class="cart-item-name" title="${prod.nom}">${prod.nom}</span>
+            </div>
+            <div class="cart-item-price">${formaterTotal(montantLigne)}</div>
+          </div>
+        `;
+      }).join('');
+
+      const tva = sousTotal * 0.18; // Taux 18% standard UEMOA / 20%
+      const total = sousTotal + tva;
+
+      document.getElementById('subtotalLabel').textContent = formaterTotal(sousTotal);
+      document.getElementById('taxLabel').textContent = formaterTotal(tva);
+      document.getElementById('totalLabel').textContent = formaterTotal(total);
+    }
+
+    // ENCAISSEMENT & DÃ‰STOCKAGE
+    function encaisser(modePaiement) {
+      if (panier.length === 0) {
+        alert('Le panier est vide.');
+        return;
+      }
+      playBeep(1200, 0.12);
+
+      // DÃ©crÃ©menter le stock dans le catalogue
+      let sousTotal = 0;
+      const itemsHtml = panier.map(item => {
+        const prod = catalogue.find(p => p.id === item.id);
+        prod.stock = Math.max(0, prod.stock - item.quantite);
+        const montant = getMontantNumerique(prod) * item.quantite;
+        sousTotal += montant;
+        return `
+          <div class="receipt-line">
+            <span>${item.quantite}x ${prod.nom}</span>
+            <span>${formaterTotal(montant)}</span>
+          </div>
+        `;
+      }).join('');
+
+      sauvegarderCatalogue();
+
+      const total = sousTotal * 1.18;
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('fr-FR') + ' ' + now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+
+      ticketSeq++;
+      document.getElementById('receiptTicketNum').textContent = 'Ticket : #' + ticketSeq;
+      document.getElementById('receiptDate').textContent = dateStr;
+      document.getElementById('receiptClient').textContent = 'Client : ' + clientActif;
+      document.getElementById('receiptMode').textContent = 'Paiement : ' + modePaiement;
+      document.getElementById('receiptItems').innerHTML = itemsHtml;
+      document.getElementById('receiptTotal').textContent = formaterTotal(total);
+
+      // Hash NF525
+      const hash = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2, '0')).join('');
+      document.getElementById('receiptHash').textContent = 'SHA256:' + hash + '...' + Date.now().toString(16);
+
+      document.getElementById('receiptModal').style.display = 'flex';
+    }
+
+    function fermerModalReceipt() {
+      document.getElementById('receiptModal').style.display = 'none';
+      panier = [];
+      document.getElementById('ticketNumberLabel').textContent = 'Ticket #' + (ticketSeq + 1);
+      afficherProduits();
+      mettreAJourPanier();
+    }
+
+    // AJOUT D'UN NOUVEAU PRODUIT DYNAMIQUEMENT
+    function ouvrirModalAjout() {
+      document.getElementById('modalAjoutProduit').style.display = 'flex';
+      document.getElementById('nouveauNom').focus();
+    }
+
+    function fermerModalAjout() {
+      document.getElementById('modalAjoutProduit').style.display = 'none';
+      uploadedImageBase64 = null;
+      document.getElementById('apercuImageUpload').style.display = 'none';
+    }
+
+    function previsualiserImageUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          uploadedImageBase64 = e.target.result;
+          document.getElementById('imgPreview').src = uploadedImageBase64;
+          document.getElementById('apercuImageUpload').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function enregistrerNouveauProduit() {
+      const nom = document.getElementById('nouveauNom').value.trim();
+      const secteur = document.getElementById('nouveauSecteur').value;
+      const categorie = document.getElementById('nouvelleCategorie').value.trim().toLowerCase() || 'divers';
+      const prixGNF = parseFloat(document.getElementById('nouveauPrixGNF').value) || 50000;
+      const prixEUR = parseFloat(document.getElementById('nouveauPrixEUR').value) || 5.00;
+      const stock = parseInt(document.getElementById('nouveauStock').value, 10) || 10;
+      const code = document.getElementById('nouveauCode').value.trim() || 'ART-' + Math.floor(1000 + Math.random() * 9000);
+
+      if (!nom) {
+        alert('Veuillez renseigner le nom de l\'article.');
+        return;
+      }
+
+      // Image par dÃ©faut si aucune n'a Ã©tÃ© tÃ©lÃ©versÃ©e
+      const defaultImg = secteur === 'auto_moto' ? './assets/products/filtre_huile.jpg' :
+                         secteur === 'electricite' ? './assets/products/disjoncteur.jpg' :
+                         secteur === 'plomberie' ? './assets/products/vanne_laiton.svg' :
+                         secteur === 'pharmacie' ? './assets/products/doliprane.jpg' : './assets/products/pain_de_mie.jpg';
+
+      const nouveauProduit = {
+        id: Date.now(),
+        nom,
+        secteur,
+        categorie,
+        code,
+        prixGNF,
+        prixEUR,
+        prixXOF: Math.round(prixGNF / 15),
+        prixUSD: parseFloat((prixEUR * 1.08).toFixed(2)),
+        stock,
+        image: uploadedImageBase64 || defaultImg
+      };
+
+      catalogue.unshift(nouveauProduit);
+      sauvegarderCatalogue();
+
+      fermerModalAjout();
+      document.getElementById('sectorSelect').value = secteur;
+      changerSecteur(secteur);
+      playBeep(1100, 0.1);
+      alert('Produit "' + nom + '" ajoutÃ© avec succÃ¨s au catalogue !');
+    }
+
+    // CLIENT MODAL
+    function ouvrirModalClient() {
+      const nom = prompt('Nom du client (ou laissez vide pour Comptoir) :', clientActif);
+      if (nom !== null) {
+        clientActif = nom.trim() || 'Comptoir';
+        document.getElementById('clientNameLabel').textContent = 'Client: ' + clientActif;
+      }
+    }
+
+    // SAUVEGARDE & EXPORT JSON
+    function exporterDonnees() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(catalogue, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "catalogue_boutique_pro_" + new Date().toISOString().slice(0,10) + ".json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      alert('Catalogue exportÃ© avec succÃ¨s !');
+    }
+
+    function reinitialiserCatalogueDefaut() {
+      if (confirm('Voulez-vous restaurer le catalogue initial avec les 5 secteurs et leurs photos officielles ?')) {
+        catalogue = [...CATALOGUE_INITIAL];
+        sauvegarderCatalogue();
+        changerSecteur(document.getElementById('sectorSelect').value);
+      }
+    }
+
+    // Ã‰COUTEUR DOUCHETTE SCANNER CODE-BARRES
+    let scanBuffer = '';
+    let lastKeyTime = Date.now();
+    window.addEventListener('keydown', (e) => {
+      // Ignorer si on Ã©crit dans un champ de texte
+      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+      const currentTime = Date.now();
+      if (currentTime - lastKeyTime > 100) {
+        scanBuffer = '';
+      }
+      lastKeyTime = currentTime;
+
+      if (e.key === 'Enter') {
+        if (scanBuffer.length >= 2) {
+          const match = catalogue.find(p => p.code && p.code.toLowerCase() === scanBuffer.toLowerCase());
+          if (match) {
+            ajouterAuPanier(match.id);
+            scanBuffer = '';
+            e.preventDefault();
+          }
+        }
+      } else if (e.key.length === 1) {
+        scanBuffer += e.key;
+      }
+    });
+
+    // HORLOGE
+    function actualiserHorloge() {
+      const now = new Date();
+      const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+      document.getElementById('liveClock').textContent = now.toLocaleDateString('fr-FR', options);
+    }
+
+    // INITIALISATION
+    actualiserHorloge();
+    setInterval(actualiserHorloge, 30000);
+    changerSecteur('auto_moto');
+  </script>
+</body>
+</html>
+
