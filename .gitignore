@@ -30,3 +30,12 @@ Thumbs.db
 
 # Fichiers de sauvegarde temporaires
 *.backup.*
+
+# Builds Android intermédiaires
+android-app/build/
+android-app/assets/
+*.keystore
+*.idsig
+
+
+
