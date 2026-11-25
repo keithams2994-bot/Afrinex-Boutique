@@ -238,7 +238,9 @@ const server = http.createServer((req, res) => {
         '.png': 'image/png',
         '.svg': 'image/svg+xml',
         '.webp': 'image/webp',
-        '.ico': 'image/x-icon'
+        '.ico': 'image/x-icon',
+        '.js': 'application/javascript',
+        '.css': 'text/css'
       };
       const contentType = mimeTypes[ext] || 'application/octet-stream';
       res.writeHead(200, {

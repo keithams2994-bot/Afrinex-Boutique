@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="./assets/js/qrcode.min.js"></script>
 <style>
   :root {
     --bg-app: #f1f5f9;
@@ -772,6 +773,61 @@
     cursor: pointer;
     color: #475569;
   }
+
+  /* STYLES ÉTIQUETTES CARTONS & QR CODES */
+  .etiquette-card {
+    background: #ffffff;
+    border: 2px dashed #94a3b8;
+    border-radius: 8px;
+    padding: 12px;
+    color: #000000;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    page-break-inside: avoid;
+    box-sizing: border-box;
+    position: relative;
+  }
+  .etiquette-carton {
+    width: 330px;
+    min-height: 195px;
+  }
+  .etiquette-rayon {
+    width: 230px;
+    min-height: 140px;
+    padding: 8px;
+  }
+  .etiquette-thermique {
+    width: 290px;
+    min-height: 200px;
+    border: 1px solid #000;
+  }
+
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #printAreaEtiquette, #printAreaEtiquette * {
+      visibility: visible !important;
+    }
+    #printAreaEtiquette {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      background: #ffffff !important;
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 15px !important;
+      padding: 10px !important;
+      z-index: 999999 !important;
+    }
+    .etiquette-card {
+      border: 1px solid #000000 !important;
+      box-shadow: none !important;
+    }
+  }
 </style>
 </head>
 <body>
@@ -782,6 +838,8 @@
       <div class="app-logo-inner">✦</div>
     </div>
     <button class="nav-btn active" title="Caisse de Vente">⊞</button>
+    <button class="nav-btn" title="Réception & Rentrée Stock au Scanner" onclick="ouvrirModalReception()">📦</button>
+    <button class="nav-btn" title="Générateur & Impression Étiquettes QR" onclick="ouvrirModalEtiquette()">🏷️</button>
     <button class="nav-btn" title="Synchronisation Réseau & Multi-Postes" onclick="ouvrirModalSync()">📡</button>
     <button class="nav-btn" title="Clôture de Caisse (Ticket Z)" onclick="ouvrirModalClotureZ()">📊</button>
     <button class="nav-btn" title="Historique des Clôtures Z" onclick="ouvrirModalHistoriqueZ()">📜</button>
@@ -835,6 +893,8 @@
           <input type="text" id="searchInput" placeholder="Recherche ou scan code..." oninput="filtrerProduits()">
         </div>
 
+        <button class="btn-header-action" onclick="ouvrirModalReception()" style="background:#4f46e5; color:white; border-color:#4f46e5; font-weight:700;" title="Réceptionner des marchandises et entrer du stock au scanner">📦 Entrée Stock</button>
+        <button class="btn-header-action" onclick="ouvrirModalEtiquette()" style="background:#0d9488; color:white; border-color:#0d9488; font-weight:700;" title="Générer et imprimer des étiquettes QR Code pour cartons">🏷️ Étiquettes QR</button>
         <button class="btn-header-action" onclick="ouvrirModalSync()" style="background:#0284c7; color:white; border-color:#0284c7; font-weight:700;" title="Synchronisation réseau local et multi-postes">📡 Multi-Postes</button>
         <a href="./Afrinex-Boutique.apk" download="Afrinex-Boutique.apk" class="btn-header-action" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; background:#059669; color:white; border-color:#059669; font-weight:700;" title="Télécharger l'application APK pour smartphone et tablette Android">📱 APK Android</a>
         <button class="btn-header-action btn-cloture-z" onclick="ouvrirModalClotureZ()">🔒 Clôture (Z)</button>
@@ -1162,10 +1222,163 @@
       </div>
 
       <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px; border-top:1px solid #e2e8f0; padding-top:12px;">
-        <button class="btn-modal-close" onclick="fermerModalSync()">Fermer</button>
+  <!-- MODAL ENTRÉE / RÉCEPTION DE STOCK AU SCANNER -->
+  <div class="modal-overlay" id="modalReceptionStock">
+    <div class="modal-content" style="width: 680px; max-width: 95%;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 style="font-size: 19px; font-weight: 800; color: #0f172a; display:flex; align-items:center; gap:8px;">
+          📦 Réception de Marchandises & Rentrée Stock
+        </h3>
+        <span style="font-size:12px; font-weight:700; color:#4f46e5; background:#e0e7ff; padding:4px 10px; border-radius:6px;">Mode Douchette Actif</span>
+      </div>
+
+      <!-- Zone Scanner Interactive -->
+      <div style="background:#f8fafc; border:2px dashed #6366f1; border-radius:10px; padding:16px; text-align:center; margin-bottom:16px;">
+        <div style="font-size:14px; font-weight:700; color:#312e81; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <span class="pulse-dot" style="background:#4f46e5;"></span>
+          Visez le carton ou le produit avec votre scanner / douchette
+        </div>
+        <p style="font-size:12px; color:#64748b; margin-top:4px;">
+          Compatible 1D (Code-barres) & 2D (QR Code, Data Matrix, Aztec). Ou tapez le code ci-dessous :
+        </p>
+        <div style="display:flex; gap:8px; max-width:420px; margin:12px auto 0;">
+          <input type="text" id="inputScanReception" placeholder="Code carton ou référence..." style="flex:1; padding:8px 12px; font-size:14px; font-weight:700; text-align:center;" onkeydown="if(event.key==='Enter')traiterScanReception(this.value)">
+          <button class="btn-modal-primary" style="background:#4f46e5; padding:8px 14px;" onclick="traiterScanReception(document.getElementById('inputScanReception').value)">OK</button>
+        </div>
+      </div>
+
+      <!-- Zone Détail Produit Scanné -->
+      <div id="receptionProduitDetails" style="display:none; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:16px; margin-bottom:16px;">
+        <div style="display:flex; gap:16px; align-items:center; margin-bottom:14px;">
+          <img id="receptionImg" src="" style="width:70px; height:70px; object-fit:cover; border-radius:8px; border:1px solid #cbd5e1;">
+          <div style="flex:1;">
+            <div style="font-size:16px; font-weight:800; color:#0f172a;" id="receptionNom">Nom Produit</div>
+            <div style="font-size:12px; color:#64748b; margin-top:2px;">
+              Code: <strong id="receptionCode"></strong> | Rayon: <strong id="receptionRayon"></strong>
+            </div>
+            <div style="font-size:13px; font-weight:700; color:#059669; margin-top:4px;">
+              Stock physique actuel : <span id="receptionStockActuel">0</span> unités
+            </div>
+          </div>
+        </div>
+
+        <div style="background:#f1f5f9; border-radius:8px; padding:12px; margin-bottom:12px;">
+          <label style="font-size:12px; font-weight:700; color:#334155;">Quantité reçue à ajouter au stock *</label>
+          <div style="display:flex; gap:8px; align-items:center; margin-top:6px;">
+            <input type="number" id="receptionQteAjout" value="10" min="1" style="width:120px; font-size:18px; font-weight:800; text-align:center; padding:6px;">
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button class="btn-secondary" onclick="receptionChangerQte(1)">+1</button>
+              <button class="btn-secondary" onclick="receptionChangerQte(5)">+5</button>
+              <button class="btn-secondary" onclick="receptionChangerQte(10)">+10</button>
+              <button class="btn-secondary" onclick="receptionChangerQte(25)">+25</button>
+              <button class="btn-secondary" onclick="receptionChangerQte(50)">+50</button>
+              <button class="btn-secondary" onclick="receptionChangerQte(100)">+100</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:14px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:11px; font-weight:700;">Fournisseur / N° Bon d'Entrée</label>
+            <input type="text" id="receptionFournisseur" placeholder="Ex: Arrivage Conakry #452" style="font-size:12px;">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:11px; font-weight:700;">N° Lot / Date péremption (FEFO)</label>
+            <input type="text" id="receptionLot" placeholder="Ex: LOT-2026-B" style="font-size:12px;">
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="btn-modal-primary" style="flex:2; background:#059669;" onclick="validerEntreeStock(false)">✅ Valider l'Entrée en Stock</button>
+          <button class="btn-modal-primary" style="flex:2; background:#0d9488;" onclick="validerEntreeStock(true)">🏷️ Valider & Imprimer Étiquettes</button>
+        </div>
+      </div>
+
+      <!-- Journal récent des entrées -->
+      <div>
+        <h4 style="font-size:13px; font-weight:800; color:#334155; margin-bottom:8px;">Historique des dernières réceptions</h4>
+        <div id="receptionJournalRecents" style="max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;"></div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; margin-top:14px; border-top:1px solid #e2e8f0; padding-top:10px;">
+        <button class="btn-modal-close" onclick="fermerModalReception()">Fermer</button>
       </div>
     </div>
   </div>
+
+  <!-- MODAL STUDIO D'IMPRESSION D'ÉTIQUETTES CARTON / RAYON -->
+  <div class="modal-overlay" id="modalImprimerEtiquette">
+    <div class="modal-content" style="width: 740px; max-width: 95%;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 style="font-size: 19px; font-weight: 800; color: #0f172a; display:flex; align-items:center; gap:8px;">
+          🏷️ Studio d'Impression d'Étiquettes Carton & QR
+        </h3>
+        <span style="font-size:12px; font-weight:700; color:#0d9488; background:#ccfbf1; padding:4px 10px; border-radius:6px;">100% Compatible Scanner</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+        <!-- Colonne Gauche : Paramètres de l'étiquette -->
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:14px;">
+          <div class="form-group">
+            <label style="font-size:12px; font-weight:700;">Produit / Carton à étiqueter *</label>
+            <select id="etiquetteSelectProduit" onchange="changerProduitEtiquette(this.value)" style="font-weight:700; font-size:13px;"></select>
+          </div>
+
+          <div class="form-group">
+            <label style="font-size:12px; font-weight:700;">Type de Symbole Scannable *</label>
+            <select id="etiquetteTypeSymbole" onchange="rafraichirApercuEtiquette()" style="font-weight:600; font-size:13px;">
+              <option value="qrcode" selected>📱 QR Code 2D (Recommandé)</option>
+              <option value="datamatrix">🔲 Data Matrix (2D Industriel)</option>
+              <option value="code128">📊 Code 128 (Code-Barres 1D Linéaire)</option>
+              <option value="azteccode">🔷 Aztec Code (2D Haute Densité)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label style="font-size:12px; font-weight:700;">Format de l'Étiquette *</label>
+            <select id="etiquetteFormat" onchange="rafraichirApercuEtiquette()" style="font-weight:600; font-size:13px;">
+              <option value="carton" selected>📦 Carton / Colis (80 x 50 mm)</option>
+              <option value="rayon">🏷️ Pièce / Rayon (50 x 30 mm)</option>
+              <option value="thermique">🧾 Rouleau Thermique (80 mm)</option>
+              <option value="planche">📄 Planche A4 (24 étiquettes)</option>
+            </select>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="form-group">
+              <label style="font-size:12px; font-weight:700;">Nombre d'exemplaires</label>
+              <input type="number" id="etiquetteQuantite" value="1" min="1" max="100" style="font-weight:800; text-align:center;">
+            </div>
+            <div class="form-group">
+              <label style="font-size:12px; font-weight:700;">N° Lot / Réception</label>
+              <input type="text" id="etiquetteLot" value="LOT-2026-01" oninput="rafraichirApercuEtiquette()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Colonne Droite : Aperçu en Direct Haute Définition -->
+        <div>
+          <label style="font-size:12px; font-weight:700; color:#334155; margin-bottom:6px; display:block;">Aperçu de l'étiquette carton :</label>
+          <div id="etiquettePreviewWrapper" style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:16px; min-height:220px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.06);">
+            <div id="etiquetteCardApercu" class="etiquette-card etiquette-carton"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; border-top:1px solid #e2e8f0; padding-top:12px;">
+        <div style="font-size:12px; color:#64748b;">
+          💡 Visez directement l'écran avec votre scanner pour tester la lecture instantanée !
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn-modal-close" onclick="fermerModalEtiquette()">Annuler</button>
+          <button class="btn-modal-primary" style="background:#0d9488;" onclick="imprimerEtiquettes()">🖨️ Imprimer les Étiquettes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE CACHÉE IMPRIMABLE POUR LES ÉTIQUETTES -->
+  <div id="printAreaEtiquette" style="display:none;"></div>
 
   <!-- MODAL AJOUT D'UN PRODUIT -->
   <div class="modal-overlay" id="modalAjoutProduit">
@@ -1688,9 +1901,9 @@
             </div>
             <div class="product-title" title="${p.nom}">${p.nom}</div>
             <div class="product-price">${formatPrix(p)}</div>
-            <div class="product-stock">
+            <div class="product-stock" style="display:flex; justify-content:space-between; align-items:center;">
               <span class="${p.stock < 5 ? 'stock-low' : ''}">Stock: ${p.stock} unités</span>
-              ${p.stock <= 0 ? '<span style="color:#dc2626; font-weight:800;">RUPTURE</span>' : ''}
+              <button class="btn-card-etiquette" onclick="event.stopPropagation(); ouvrirModalEtiquette(${p.id})" title="Imprimer Étiquette QR Code pour carton / rayon" style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; padding:2px 7px; font-size:11px; font-weight:700; color:#0d9488; cursor:pointer;">🏷️ QR</button>
             </div>
           </div>
         `;
@@ -2230,11 +2443,21 @@
 
       if (e.key === 'Enter') {
         if (scanBuffer.length >= 2) {
-          const match = catalogue.find(p => p.code && p.code.toLowerCase() === scanBuffer.toLowerCase());
-          if (match) {
-            ajouterAuPanier(match.id);
-            scanBuffer = '';
-            e.preventDefault();
+          const codeScanne = scanBuffer.trim();
+          scanBuffer = '';
+          e.preventDefault();
+
+          const receptionModal = document.getElementById('modalReceptionStock');
+          if (receptionModal && receptionModal.style.display === 'flex') {
+            traiterScanReception(codeScanne);
+          } else {
+            const match = catalogue.find(p => p.code && p.code.toLowerCase() === codeScanne.toLowerCase());
+            if (match) {
+              ajouterAuPanier(match.id);
+            } else {
+              playBeep(440, 0.2);
+              alert('Code scanné introuvable dans le catalogue : ' + codeScanne + '\n\nOuvrez "📦 Entrée Stock" pour enregistrer ce nouvel arrivage.');
+            }
           }
         }
       } else if (e.key.length === 1) {
@@ -2512,6 +2735,324 @@
         }
       };
       reader.readAsText(file);
+    }
+
+    // =========================================================================
+    // MODULE DE RÉCEPTION DE MARCHANDISE & RENTRÉE DE STOCK AU SCANNER
+    // =========================================================================
+    let produitEnReception = null;
+    let historiqueReceptions = JSON.parse(localStorage.getItem('boutique_pro_receptions_v1') || '[]');
+
+    function ouvrirModalReception() {
+      produitEnReception = null;
+      document.getElementById('receptionProduitDetails').style.display = 'none';
+      document.getElementById('inputScanReception').value = '';
+      actualiserJournalRecentsReception();
+      document.getElementById('modalReceptionStock').style.display = 'flex';
+      setTimeout(() => {
+        document.getElementById('inputScanReception').focus();
+      }, 200);
+    }
+
+    function fermerModalReception() {
+      document.getElementById('modalReceptionStock').style.display = 'none';
+      produitEnReception = null;
+    }
+
+    function traiterScanReception(code) {
+      if (!code) return;
+      code = code.trim();
+      document.getElementById('inputScanReception').value = code;
+
+      // Recherche dans le catalogue
+      const match = catalogue.find(p => p.code && p.code.toLowerCase() === code.toLowerCase());
+      if (match) {
+        playBeep(950, 0.1);
+        produitEnReception = match;
+        document.getElementById('receptionImg').src = match.image;
+        document.getElementById('receptionNom').textContent = match.nom;
+        document.getElementById('receptionCode').textContent = match.code;
+        document.getElementById('receptionRayon').textContent = match.categorie.toUpperCase();
+        document.getElementById('receptionStockActuel').textContent = match.stock;
+        document.getElementById('receptionQteAjout').value = 10;
+        document.getElementById('receptionProduitDetails').style.display = 'block';
+      } else {
+        playBeep(650, 0.15);
+        if (confirm(`Nouveau carton détecté avec le code [${code}] !\n\nCe produit n'existe pas encore dans le catalogue.\nVoulez-vous créer sa fiche maintenant ?`)) {
+          fermerModalReception();
+          ouvrirModalAjout();
+          document.getElementById('nouveauCode').value = code;
+          document.getElementById('nouveauNom').focus();
+        }
+      }
+    }
+
+    function receptionChangerQte(delta) {
+      const input = document.getElementById('receptionQteAjout');
+      let val = parseInt(input.value, 10) || 0;
+      val += delta;
+      if (val < 1) val = 1;
+      input.value = val;
+    }
+
+    function validerEntreeStock(avecImpression) {
+      if (!produitEnReception) return;
+
+      const qte = parseInt(document.getElementById('receptionQteAjout').value, 10) || 0;
+      if (qte <= 0) {
+        alert('Veuillez saisir une quantité strictement positive.');
+        return;
+      }
+
+      const fournisseur = document.getElementById('receptionFournisseur').value.trim() || 'Arrivage Direct';
+      const lot = document.getElementById('receptionLot').value.trim() || 'LOT-' + new Date().toISOString().slice(0, 10);
+
+      // Mise à jour du stock
+      produitEnReception.stock += qte;
+      sauvegarderCatalogue();
+      afficherProduits();
+
+      // Enregistrement du mouvement d'entrée
+      const mouvement = {
+        id: Date.now(),
+        type: 'ENTREE_STOCK',
+        produitId: produitEnReception.id,
+        nom: produitEnReception.nom,
+        code: produitEnReception.code,
+        quantite: qte,
+        stockFinal: produitEnReception.stock,
+        fournisseur: fournisseur,
+        lot: lot,
+        date: new Date().toISOString(),
+        dateStr: new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})
+      };
+
+      historiqueReceptions.unshift(mouvement);
+      localStorage.setItem('boutique_pro_receptions_v1', JSON.stringify(historiqueReceptions.slice(0, 50)));
+
+      playBeep(1200, 0.15);
+      alert(`✅ Rentrée de stock validée !\n\n+${qte} unités ajoutées à "${produitEnReception.nom}".\nNouveau stock physique : ${produitEnReception.stock} unités.`);
+
+      const idProdCible = produitEnReception.id;
+      const qteEtiquettes = qte;
+
+      fermerModalReception();
+
+      if (avecImpression) {
+        ouvrirModalEtiquette(idProdCible, qteEtiquettes, lot);
+      }
+    }
+
+    function actualiserJournalRecentsReception() {
+      const container = document.getElementById('receptionJournalRecents');
+      if (historiqueReceptions.length === 0) {
+        container.innerHTML = '<div style="font-size:12px; color:#94a3b8; text-align:center; padding:10px;">Aucune réception récente enregistrée.</div>';
+        return;
+      }
+      container.innerHTML = historiqueReceptions.slice(0, 5).map(m => `
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:6px 10px; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong>${m.nom}</strong> (${m.code}) — <span style="color:#059669; font-weight:800;">+${m.quantite} reçus</span>
+            <div style="font-size:10px; color:#64748b;">${m.dateStr} | Lot: ${m.lot} | Fourn: ${m.fournisseur}</div>
+          </div>
+          <button class="btn-secondary" style="padding:2px 6px; font-size:10px;" onclick="ouvrirModalEtiquette(${m.produitId}, ${m.quantite}, '${m.lot}')">🏷️ Étiquettes</button>
+        </div>
+      `).join('');
+    }
+
+    // =========================================================================
+    // MODULE STUDIO D'IMPRESSION D'ÉTIQUETTES CARTON / RAYON / QR CODE
+    // =========================================================================
+    let produitEtiquetteSelectionne = null;
+
+    function ouvrirModalEtiquette(prodId, qteDefaut, lotDefaut) {
+      const select = document.getElementById('etiquetteSelectProduit');
+      select.innerHTML = catalogue.map(p => `
+        <option value="${p.id}">${p.nom} [${p.code || '#' + p.id}]</option>
+      `).join('');
+
+      if (prodId) {
+        select.value = prodId;
+      }
+      changerProduitEtiquette(select.value);
+
+      if (qteDefaut) {
+        document.getElementById('etiquetteQuantite').value = qteDefaut;
+      }
+      if (lotDefaut) {
+        document.getElementById('etiquetteLot').value = lotDefaut;
+      }
+
+      document.getElementById('modalImprimerEtiquette').style.display = 'flex';
+      rafraichirApercuEtiquette();
+    }
+
+    function fermerModalEtiquette() {
+      document.getElementById('modalImprimerEtiquette').style.display = 'none';
+    }
+
+    function changerProduitEtiquette(id) {
+      produitEtiquetteSelectionne = catalogue.find(p => p.id == id) || catalogue[0];
+      rafraichirApercuEtiquette();
+    }
+
+    // GÉNÉRATEURS DE CODES SCANNABLES (SVG PURS ET STANDARDS)
+    function genererCode128SVG(text) {
+      const code128Patterns = [
+        "212222","222122","222221","121223","121322","131222","122213","122312","132212","221213",
+        "221312","231212","112232","122132","122231","113222","123122","123221","223211","221132",
+        "221231","213212","223112","312131","311222","321122","321221","312212","322112","322211",
+        "212123","212321","232121","111323","131123","131321","112313","132113","132311","211313",
+        "231113","231311","112133","112331","132131","113123","113321","133121","313121","211331",
+        "231131","213113","213311","213131","311123","311321","331121","312113","312311","332111",
+        "314111","221411","431111","111224","111422","121124","121421","141122","141221","112214",
+        "112412","122114","122411","142112","142211","241211","221114","413111","241112","134111",
+        "111242","121142","121241","114212","124112","124211","411212","421112","421211","212141",
+        "214121","412121","111143","111341","131141","114113","114311","411113","411311","113141",
+        "114131","311141","411131","211412","211214","211232","2331112"
+      ];
+      let check = 104;
+      let bars = code128Patterns[104];
+      for (let i = 0; i < text.length; i++) {
+        const val = text.charCodeAt(i) - 32;
+        check += (i + 1) * val;
+        bars += (code128Patterns[val] || code128Patterns[0]);
+      }
+      bars += code128Patterns[check % 103];
+      bars += code128Patterns[106];
+
+      let x = 10;
+      let rects = '';
+      for (let i = 0; i < bars.length; i++) {
+        const width = parseInt(bars[i], 10) * 2;
+        if (i % 2 === 0) {
+          rects += `<rect x="${x}" y="5" width="${width}" height="42" fill="#000"/>`;
+        }
+        x += width;
+      }
+      return `<svg viewBox="0 0 ${x + 10} 50" width="100%" height="45" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:auto;">${rects}</svg>`;
+    }
+
+    function genererDataMatrixSVG(text) {
+      const size = 16;
+      let rects = '';
+      let hash = 0;
+      for (let i = 0; i < text.length; i++) hash = ((hash << 5) - hash) + text.charCodeAt(i);
+      
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          let fill = false;
+          if (r === size - 1 || c === 0) fill = true;
+          else if (r === 0 && c % 2 === 0) fill = true;
+          else if (c === size - 1 && r % 2 === 1) fill = true;
+          else {
+            fill = ((r * c + hash + (r ^ c)) % 3) === 0;
+          }
+          if (fill) rects += `<rect x="${c * 5}" y="${r * 5}" width="5" height="5" fill="#000"/>`;
+        }
+      }
+      return `<svg viewBox="0 0 ${size * 5} ${size * 5}" width="65" height="65" xmlns="http://www.w3.org/2000/svg">${rects}</svg>`;
+    }
+
+    function genererApercuSymboleHTML(type, code, callback) {
+      if (type === 'qrcode') {
+        if (typeof QRCode !== 'undefined' && QRCode.toString) {
+          QRCode.toString(code, { type: 'svg', margin: 1, width: 80 }, (err, svg) => {
+            if (!err && svg) callback(svg);
+            else callback(genererDataMatrixSVG(code));
+          });
+        } else {
+          callback(genererDataMatrixSVG(code));
+        }
+      } else if (type === 'code128') {
+        callback(genererCode128SVG(code));
+      } else {
+        callback(genererDataMatrixSVG(code));
+      }
+    }
+
+    function rafraichirApercuEtiquette() {
+      if (!produitEtiquetteSelectionne) return;
+
+      const p = produitEtiquetteSelectionne;
+      const typeSymbole = document.getElementById('etiquetteTypeSymbole').value;
+      const format = document.getElementById('etiquetteFormat').value;
+      const lot = document.getElementById('etiquetteLot').value.trim() || 'LOT-2026';
+      const container = document.getElementById('etiquetteCardApercu');
+
+      container.className = 'etiquette-card ' + (format === 'carton' ? 'etiquette-carton' : format === 'rayon' ? 'etiquette-rayon' : 'etiquette-thermique');
+
+      genererApercuSymboleHTML(typeSymbole, p.code || 'ART-' + p.id, (symboleSvg) => {
+        container.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #000; padding-bottom:3px; margin-bottom:5px;">
+            <span style="font-size:11px; font-weight:800; letter-spacing:0.5px;">AFRINEX BOUTIQUE</span>
+            <span style="font-size:9px; font-weight:700; background:#000; color:#fff; padding:1px 5px; border-radius:3px;">${p.secteur.toUpperCase()}</span>
+          </div>
+          <div style="font-size:${format === 'carton' ? '14px' : '11px'}; font-weight:800; line-height:1.2; margin-bottom:4px; color:#000;">
+            ${p.nom}
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; margin:4px 0;">
+            <div style="flex-shrink:0;">
+              ${symboleSvg}
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:9px; color:#555;">Réf / Code :</div>
+              <div style="font-size:12px; font-weight:900; font-family:monospace; color:#000;">${p.code || '#' + p.id}</div>
+              <div style="font-size:9px; color:#666; margin-top:2px;">Lot: ${lot}</div>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid #000; padding-top:3px; margin-top:3px;">
+            <span style="font-size:9px; font-weight:600; color:#444;">PRIX PUBLIC</span>
+            <span style="font-size:${format === 'carton' ? '18px' : '14px'}; font-weight:900; color:#000;">${formatPrix(p)}</span>
+          </div>
+        `;
+      });
+    }
+
+    function imprimerEtiquettes() {
+      if (!produitEtiquetteSelectionne) return;
+
+      const qte = parseInt(document.getElementById('etiquetteQuantite').value, 10) || 1;
+      const typeSymbole = document.getElementById('etiquetteTypeSymbole').value;
+      const format = document.getElementById('etiquetteFormat').value;
+      const lot = document.getElementById('etiquetteLot').value.trim() || 'LOT-2026';
+      const printArea = document.getElementById('printAreaEtiquette');
+
+      genererApercuSymboleHTML(typeSymbole, produitEtiquetteSelectionne.code || 'ART-' + produitEtiquetteSelectionne.id, (symboleSvg) => {
+        let singleEtiquetteHtml = `
+          <div class="etiquette-card ${format === 'carton' ? 'etiquette-carton' : format === 'rayon' ? 'etiquette-rayon' : 'etiquette-thermique'}" style="border:1px solid #000; margin:4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #000; padding-bottom:3px; margin-bottom:5px;">
+              <span style="font-size:11px; font-weight:800; letter-spacing:0.5px;">AFRINEX BOUTIQUE</span>
+              <span style="font-size:9px; font-weight:700; background:#000; color:#fff; padding:1px 5px; border-radius:3px;">${produitEtiquetteSelectionne.secteur.toUpperCase()}</span>
+            </div>
+            <div style="font-size:${format === 'carton' ? '14px' : '11px'}; font-weight:800; line-height:1.2; margin-bottom:4px; color:#000;">
+              ${produitEtiquetteSelectionne.nom}
+            </div>
+            <div style="display:flex; gap:8px; align-items:center; margin:4px 0;">
+              <div style="flex-shrink:0;">
+                ${symboleSvg}
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:9px; color:#555;">Réf / Code :</div>
+                <div style="font-size:12px; font-weight:900; font-family:monospace; color:#000;">${produitEtiquetteSelectionne.code || '#' + produitEtiquetteSelectionne.id}</div>
+                <div style="font-size:9px; color:#666; margin-top:2px;">Lot: ${lot}</div>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid #000; padding-top:3px; margin-top:3px;">
+              <span style="font-size:9px; font-weight:600; color:#444;">PRIX PUBLIC</span>
+              <span style="font-size:${format === 'carton' ? '18px' : '14px'}; font-weight:900; color:#000;">${formatPrix(produitEtiquetteSelectionne)}</span>
+            </div>
+          </div>
+        `;
+
+        let allHtml = '';
+        for (let i = 0; i < qte; i++) {
+          allHtml += singleEtiquetteHtml;
+        }
+
+        printArea.innerHTML = allHtml;
+        window.print();
+      });
     }
 
     // HORLOGE

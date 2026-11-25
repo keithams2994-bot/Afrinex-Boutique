@@ -55,6 +55,15 @@ if (fs.existsSync(srcProductsDir)) {
     fs.copyFileSync(path.join(srcProductsDir, file), path.join(destProductsDir, file));
   });
 }
+
+const destJsDir = path.join(ASSETS_DIR, 'assets', 'js');
+fs.mkdirSync(destJsDir, { recursive: true });
+const srcJsDir = path.join(PROJECT_DIR, 'assets', 'js');
+if (fs.existsSync(srcJsDir)) {
+  fs.readdirSync(srcJsDir).forEach(file => {
+    fs.copyFileSync(path.join(srcJsDir, file), path.join(destJsDir, file));
+  });
+}
 console.log('✅ Assets synchronisés dans APK.');
 
 // 2. Génération de l'icône de l'application (PNG pur sans dépendance)
