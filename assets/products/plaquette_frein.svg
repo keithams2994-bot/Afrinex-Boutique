@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" fill="#f8fafc" rx="16"/>
+  <!-- Brake Pad Backplate -->
+  <path d="M 35 110 C 35 75, 165 75, 165 110 L 155 125 L 45 125 Z" fill="#334155" stroke="#0f172a" stroke-width="2"/>
+  <!-- Friction material -->
+  <path d="M 50 105 C 50 82, 150 82, 150 105 L 142 120 L 58 120 Z" fill="#78350f" stroke="#451a03" stroke-width="2"/>
+  <!-- Mounting ears / holes -->
+  <circle cx="45" cy="88" r="6" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>
+  <circle cx="155" cy="88" r="6" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>
+  <text x="100" y="165" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#334155" text-anchor="middle">Plaquettes de Frein</text>
+  <text x="100" y="180" font-family="Arial, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">Jeu de 4 (Avant / Arrière)</text>
+</svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" fill="#f8fafc" rx="16"/>
+  <!-- Brass Valve Body -->
+  <defs>
+    <linearGradient id="brass" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="50%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="redLever" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+  </defs>
+  <!-- Valve cylinder -->
+  <rect x="40" y="85" width="120" height="35" rx="6" fill="url(#brass)" stroke="#92400e" stroke-width="2"/>
+  <rect x="30" y="80" width="20" height="45" rx="4" fill="url(#brass)" stroke="#92400e" stroke-width="2"/>
+  <rect x="150" y="80" width="20" height="45" rx="4" fill="url(#brass)" stroke="#92400e" stroke-width="2"/>
+  <!-- Central sphere -->
+  <circle cx="100" cy="102" r="28" fill="url(#brass)" stroke="#78350f" stroke-width="2"/>
+  <rect x="92" y="60" width="16" height="28" rx="3" fill="#475569"/>
+  <!-- Red handle lever -->
+  <rect x="65" y="46" width="95" height="18" rx="8" fill="url(#redLever)" stroke="#7f1d1d" stroke-width="2"/>
+  <circle cx="100" cy="55" r="7" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="100" y="165" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#334155" text-anchor="middle">Vanne Laiton 1/4 Tour</text>
+  <text x="100" y="180" font-family="Arial, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">Ø 20/27 (3/4")</text>
+</svg>

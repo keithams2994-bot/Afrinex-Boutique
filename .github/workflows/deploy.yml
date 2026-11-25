@@ -1,0 +1,78 @@
+name: CI/CD Pipeline - Boutique Pro SaaS
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: production_deployment
+  cancel-in-progress: true
+
+jobs:
+  validate-and-test:
+    name: 🧪 Validation & Tests Automatisés
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Configurer Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: apps/backend-nestjs/package.json
+
+      - name: Installer les dépendances API
+        working-directory: apps/backend-nestjs
+        run: npm install
+
+      - name: Vérifier la compilation TypeScript
+        working-directory: apps/backend-nestjs
+        run: npm run build
+
+  deploy-to-hostinger:
+    name: 🚀 Déploiement Automatisé Hostinger VPS
+    needs: validate-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Configuration de l'agent SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+
+      - name: Déploiement sur le serveur VPS Hostinger
+        env:
+          HOST: ${{ secrets.VPS_HOST }}
+          USER: ${{ secrets.VPS_USER }}
+          PORT: ${{ secrets.VPS_PORT || 22 }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -p $PORT $USER@$HOST << 'EOF'
+            set -e
+            echo "[+] Connexion SSH établie sur Hostinger VPS..."
+            cd /opt/saas-platform || { echo "Dossier /opt/saas-platform absent. Clone requis."; exit 1; }
+            git fetch origin main
+            git reset --hard origin/main
+            chmod +x infra/scripts/*.sh
+            ./infra/scripts/deploy.sh
+          EOF
+
+      - name: Contrôle de Santé Post-Déploiement
+        run: |
+          echo "[+] Attente du démarrage des conteneurs..."
+          sleep 12
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ secrets.DOMAIN_NAME || 'api.votre-saas.com' }}/v1/health || echo "000")
+          echo "Réponse HTTP: $STATUS"
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+            echo "✅ Système en ligne et opérationnel !"
+          else
+            echo "⚠️ Attention : L'API a retourné le code $STATUS (Vérifiez les certificats SSL ou les logs conteneur)."
+          fi

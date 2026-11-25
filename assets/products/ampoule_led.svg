@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" fill="#f8fafc" rx="16"/>
+  <defs>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="60%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#94a3b8"/>
+      <stop offset="50%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+  </defs>
+  <!-- Bulb Dome -->
+  <path d="M 60 70 A 40 40 0 1 1 140 70 C 140 95, 125 105, 120 125 L 80 125 C 75 105, 60 95, 60 70 Z" fill="url(#glow)" stroke="#e2e8f0" stroke-width="2"/>
+  <!-- Screw Base E27 -->
+  <rect x="82" y="125" width="36" height="8" rx="2" fill="url(#metal)" stroke="#475569"/>
+  <rect x="83" y="133" width="34" height="7" rx="2" fill="url(#metal)" stroke="#475569"/>
+  <rect x="84" y="140" width="32" height="7" rx="2" fill="url(#metal)" stroke="#475569"/>
+  <rect x="88" y="147" width="24" height="6" rx="3" fill="#334155"/>
+  <text x="100" y="175" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#334155" text-anchor="middle">Ampoule LED E27</text>
+  <text x="100" y="190" font-family="Arial, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">12W (Éq. 100W) - 6500K</text>
+</svg>

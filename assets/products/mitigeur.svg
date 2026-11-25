@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" fill="#f8fafc" rx="16"/>
+  <defs>
+    <linearGradient id="chrome" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="40%" stop-color="#cbd5e1"/>
+      <stop offset="70%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+  </defs>
+  <!-- Faucet Body -->
+  <rect x="85" y="80" width="30" height="70" rx="4" fill="url(#chrome)" stroke="#475569" stroke-width="2"/>
+  <!-- Base ring -->
+  <ellipse cx="100" cy="150" rx="25" ry="10" fill="url(#chrome)" stroke="#475569" stroke-width="2"/>
+  <!-- Curved Spout -->
+  <path d="M 100 80 C 100 35, 145 35, 145 75 L 145 90" fill="none" stroke="url(#chrome)" stroke-width="16" stroke-linecap="round"/>
+  <!-- Handle lever -->
+  <rect x="70" y="70" width="45" height="12" rx="4" fill="url(#chrome)" transform="rotate(-15 70 70)" stroke="#475569" stroke-width="2"/>
+  <text x="100" y="178" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#334155" text-anchor="middle">Mitigeur Lavabo</text>
+  <text x="100" y="192" font-family="Arial, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">Chromé Céramique</text>
+</svg>

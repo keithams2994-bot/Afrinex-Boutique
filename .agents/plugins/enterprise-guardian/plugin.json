@@ -1,0 +1,7 @@
+{
+  "name": "enterprise-guardian",
+  "displayName": "Enterprise & ERP Architecture Guardian",
+  "version": "1.0.0",
+  "description": "Garantit la haute intégrité des systèmes d'information critiques (ERP santé/logistique, caisses POS, synchronisation hors-ligne) : traçabilité FEFO, intégrité transactionnelle SQLite/SQL, idempotence et prévention des régressions.",
+  "author": "Antigravity Pair Programmer"
+}

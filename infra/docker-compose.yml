@@ -1,0 +1,117 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: saas_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-saas_core_db}
+      POSTGRES_USER: ${DB_USER:-saas_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-SecretMasterPass123!}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+      - saas_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-saas_admin} -d ${DB_NAME:-saas_core_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Multiplexeur de connexions SQL pour haute charge (Évite les saturations de connexions)
+  pgbouncer:
+    image: edoburu/pgbouncer:v1.22.0
+    container_name: saas_pgbouncer
+    restart: always
+    environment:
+      DB_USER: ${DB_USER:-saas_admin}
+      DB_PASSWORD: ${DB_PASSWORD:-SecretMasterPass123!}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-saas_core_db}
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 1000
+      DEFAULT_POOL_SIZE: 20
+      RESERVE_POOL_SIZE: 5
+      ADMIN_USERS: ${DB_USER:-saas_admin}
+      AUTH_TYPE: plain
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - saas_internal
+
+  redis:
+    image: redis:7-alpine
+    container_name: saas_redis
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-RedisSecurePass9988!}
+    volumes:
+      - redisdata:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    networks:
+      - saas_internal
+
+  backend:
+    build:
+      context: ../apps/backend-nestjs
+      dockerfile: Dockerfile
+    container_name: saas_backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pgbouncer:
+        condition: service_started
+      redis:
+        condition: service_started
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      DATABASE_HOST: pgbouncer # Connexion via PgBouncer pour absorption des pics de charge
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${DB_NAME:-saas_core_db}
+      DATABASE_USER: ${DB_USER:-saas_admin}
+      DATABASE_PASSWORD: ${DB_PASSWORD:-SecretMasterPass123!}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-RedisSecurePass9988!}
+      JWT_SECRET: ${JWT_SECRET:-SuperSecretJwtKey2026!}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      WHOP_API_KEY: ${WHOP_API_KEY}
+      GHL_INVOICE_WEBHOOK_URL: ${GHL_INVOICE_WEBHOOK_URL}
+      INTERNAL_ADMIN_API_KEY: ${INTERNAL_ADMIN_API_KEY:-InternalSecretAdminKey2026!}
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - saas_internal
+
+  nginx:
+    image: nginx:alpine
+    container_name: saas_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - backend
+    networks:
+      - saas_internal
+
+networks:
+  saas_internal:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:
