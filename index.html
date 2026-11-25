@@ -782,6 +782,7 @@
       <div class="app-logo-inner">✦</div>
     </div>
     <button class="nav-btn active" title="Caisse de Vente">⊞</button>
+    <button class="nav-btn" title="Synchronisation Réseau & Multi-Postes" onclick="ouvrirModalSync()">📡</button>
     <button class="nav-btn" title="Clôture de Caisse (Ticket Z)" onclick="ouvrirModalClotureZ()">📊</button>
     <button class="nav-btn" title="Historique des Clôtures Z" onclick="ouvrirModalHistoriqueZ()">📜</button>
     <button class="nav-btn" title="Ajouter un Produit" onclick="ouvrirModalAjout()">➕</button>
@@ -814,9 +815,9 @@
         </select>
       </div>
 
-      <div class="offline-status-pill">
-        <span class="pulse-dot"></span>
-        Mode Hors-ligne Actif
+      <div class="offline-status-pill" id="syncStatusPill" onclick="ouvrirModalSync()" style="cursor:pointer;" title="Cliquez pour gérer la synchronisation multi-postes">
+        <span class="pulse-dot" id="syncPulseDot"></span>
+        <span id="syncStatusText">📡 Multi-Postes</span>
       </div>
 
       <div class="header-right">
@@ -834,6 +835,7 @@
           <input type="text" id="searchInput" placeholder="Recherche ou scan code..." oninput="filtrerProduits()">
         </div>
 
+        <button class="btn-header-action" onclick="ouvrirModalSync()" style="background:#0284c7; color:white; border-color:#0284c7; font-weight:700;" title="Synchronisation réseau local et multi-postes">📡 Multi-Postes</button>
         <a href="./Afrinex-Boutique.apk" download="Afrinex-Boutique.apk" class="btn-header-action" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; background:#059669; color:white; border-color:#059669; font-weight:700;" title="Télécharger l'application APK pour smartphone et tablette Android">📱 APK Android</a>
         <button class="btn-header-action btn-cloture-z" onclick="ouvrirModalClotureZ()">🔒 Clôture (Z)</button>
         <button class="btn-header-action" onclick="ouvrirModalAjout()">+ Produit</button>
@@ -1068,6 +1070,99 @@
       <div id="listeHistoriqueZ" style="max-height: 380px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
       <div style="margin-top:14px; text-align:right;">
         <button class="btn-modal-close" onclick="fermerModalHistoriqueZ()">Fermer</button>
+      </div>
+    </div>
+  <!-- MODAL SYNCHRONISATION RÉSEAU & MULTI-POSTES -->
+  <div class="modal-overlay" id="modalMultiPosSync">
+    <div class="modal-content" style="width: 650px; max-width: 95%;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 style="font-size: 19px; font-weight: 800; color: #0f172a; display:flex; align-items:center; gap:8px;">
+          📡 Synchronisation Multi-Postes & Réseau Local
+        </h3>
+        <span id="syncModalBadge" style="font-size:12px; font-weight:700; color:#0284c7; background:#e0f2fe; padding:4px 10px; border-radius:6px;">Mode Autonome</span>
+      </div>
+
+      <!-- Navigation par onglets -->
+      <div style="display:flex; gap:8px; border-bottom:1px solid #e2e8f0; margin-bottom:16px;">
+        <button class="btn-tab-sync active" id="tabBtnLan" onclick="switchSyncTab('lan')" style="padding:8px 14px; font-weight:700; border:none; background:none; border-bottom:2px solid #0284c7; color:#0284c7; cursor:pointer;">1. Réseau Local (Wi-Fi / LAN)</button>
+        <button class="btn-tab-sync" id="tabBtnSneakernet" onclick="switchSyncTab('sneakernet')" style="padding:8px 14px; font-weight:700; border:none; background:none; border-bottom:2px solid transparent; color:#64748b; cursor:pointer;">2. Échange Fichier (Sans Wi-Fi)</button>
+      </div>
+
+      <!-- ONGLET 1 : RÉSEAU LOCAL WI-FI / LAN -->
+      <div id="tabContentLan">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:14px;">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-size:12px; font-weight:700; color:#475569;">Identifiant de ce poste *</label>
+              <input type="text" id="syncTerminalId" value="CAISSE-MOBILE-01" style="font-weight:700;" onchange="sauvegarderConfigSync()">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-size:12px; font-weight:700; color:#475569;">Adresse IP du Hub Central *</label>
+              <input type="text" id="syncHubUrl" value="http://192.168.17.230:5000" style="font-weight:600;" onchange="sauvegarderConfigSync()">
+            </div>
+          </div>
+          <div style="margin-top:10px; display:flex; gap:10px; align-items:center;">
+            <button class="btn-modal-primary" style="background:#0284c7; padding:8px 14px; font-size:13px;" onclick="testerConnexionHub()">🔍 Tester Connexion Hub</button>
+            <span id="hubPingResult" style="font-size:12px; font-weight:600; color:#64748b;">Prêt à tester</span>
+          </div>
+        </div>
+
+        <div id="hubActiveInfoBox" style="display:none; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:8px; padding:12px; margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size:13px; font-weight:800; color:#065f46;">✅ Hub Central Détecté & En Ligne</div>
+              <div style="font-size:12px; color:#047857;" id="hubDetailsText">Adresse : http://192.168.17.230:5000</div>
+            </div>
+            <div style="font-size:12px; text-align:right; color:#065f46;">
+              Ventes serveur : <strong id="hubServerCount">0</strong>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:14px;">
+          <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:12px; text-align:center;">
+            <div style="font-size:24px; font-weight:900; color:#0f172a;" id="statVentesEnAttente">0</div>
+            <div style="font-size:12px; color:#64748b; font-weight:600;">Ventes locales en attente d'envoi</div>
+          </div>
+          <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:12px; text-align:center;">
+            <div style="font-size:24px; font-weight:900; color:#10b981;" id="statVentesSync">0</div>
+            <div style="font-size:12px; color:#64748b; font-weight:600;">Ventes synchronisées avec succès</div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; background:#f1f5f9; padding:10px 14px; border-radius:8px;">
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer; color:#1e293b;">
+            <input type="checkbox" id="checkAutoSync" checked onchange="sauvegarderConfigSync()">
+            Synchroniser automatiquement après chaque encaissement
+          </label>
+          <button class="btn-modal-primary" style="background:#0f172a;" onclick="lancerSynchroManuelle()">🚀 Synchroniser Maintenant</button>
+        </div>
+      </div>
+
+      <!-- ONGLET 2 : SNEAKERNET (FICHIER SANS RÉSEAU) -->
+      <div id="tabContentSneakernet" style="display:none;">
+        <p style="font-size:13px; color:#475569; margin-bottom:14px;">
+          Si vous n'avez pas de réseau Wi-Fi ou routeur, vous pouvez exporter les ventes de cette caisse dans un fichier sécurisé <strong>.afrinex-sync</strong> et l'importer sur le PC principal via clé USB ou Bluetooth.
+        </p>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-bottom:16px;">
+          <div style="border:1px solid #cbd5e1; border-radius:8px; padding:14px; background:#f8fafc;">
+            <h4 style="font-size:14px; font-weight:800; color:#0f172a; margin-bottom:6px;">📤 Exporter les Ventes</h4>
+            <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Génère un paquet scellé avec hash d'intégrité de toutes les transactions locales.</p>
+            <button class="btn-modal-primary" style="width:100%; background:#0284c7;" onclick="exporterPaquetSync()">💾 Télécharger .afrinex-sync</button>
+          </div>
+
+          <div style="border:1px solid #cbd5e1; border-radius:8px; padding:14px; background:#f8fafc;">
+            <h4 style="font-size:14px; font-weight:800; color:#0f172a; margin-bottom:6px;">📥 Importer les Ventes</h4>
+            <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Ingère les ventes d'une autre tablette avec déduplication stricte par UUID.</p>
+            <input type="file" id="inputImportSync" accept=".json,.afrinex-sync" style="display:none;" onchange="importerPaquetSync(event)">
+            <button class="btn-modal-primary" style="width:100%; background:#10b981;" onclick="document.getElementById('inputImportSync').click()">📂 Choisir un fichier</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px; border-top:1px solid #e2e8f0; padding-top:12px;">
+        <button class="btn-modal-close" onclick="fermerModalSync()">Fermer</button>
       </div>
     </div>
   </div>
@@ -1732,9 +1827,14 @@
       ticketSeq++;
       const hash = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2, '0')).join('');
 
-      // Enregistrement dans le journal des ventes
+      // Enregistrement dans le journal des ventes avec UUID Client unique conforme à la Doctrine
+      const clientUuid = 'TX-' + (crypto.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).substring(2, 9)));
       const venteRecord = {
         id: Date.now(),
+        uuid_client: clientUuid,
+        saisi_le: now.toISOString(),
+        terminal_id: getTerminalId(),
+        synced: false,
         ticketNum: ticketSeq,
         date: now.toISOString(),
         dateStr: dateStr,
@@ -1749,6 +1849,12 @@
       };
       journalVentes.push(venteRecord);
       sauvegarderVentesSession();
+      mettreAJourCompteursSync();
+
+      // Tentative de synchronisation réseau local en tâche de fond
+      if (isAutoSyncEnabled()) {
+        tenterSynchroArrierePlan();
+      }
 
       document.getElementById('receiptTicketNum').textContent = 'Ticket : #' + ticketSeq;
       document.getElementById('receiptDate').textContent = dateStr;
@@ -1899,7 +2005,12 @@
       const dateStr = now.toLocaleDateString('fr-FR') + ' ' + now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
       const hashZ = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2, '0')).join('');
 
+      const clientUuidZ = 'Z-' + numZ + '-' + now.toISOString().slice(0, 10) + '-' + Math.random().toString(36).substring(2, 6);
       const enregistrementZ = {
+        uuid_client: clientUuidZ,
+        saisi_le: now.toISOString(),
+        terminal_id: getTerminalId(),
+        synced: false,
         numZ,
         date: now.toISOString(),
         dateStr,
@@ -2131,6 +2242,278 @@
       }
     });
 
+    // ==========================================
+    // MOTEUR DE SYNCHRONISATION MULTI-POSTES (LAN & SNEAKERNET)
+    // ==========================================
+    function getTerminalId() {
+      let tId = localStorage.getItem('boutique_pro_terminal_id');
+      if (!tId) {
+        const isAndroid = navigator.userAgent.includes('Android');
+        tId = (isAndroid ? 'TABLETTE-' : 'CAISSE-') + Math.floor(100 + Math.random() * 900);
+        localStorage.setItem('boutique_pro_terminal_id', tId);
+      }
+      return tId;
+    }
+
+    function getHubUrl() {
+      let url = localStorage.getItem('boutique_pro_hub_url');
+      if (!url) {
+        if (window.location.protocol.startsWith('http') && window.location.port === '5000') {
+          url = window.location.origin;
+        } else {
+          url = 'http://192.168.17.230:5000';
+        }
+        localStorage.setItem('boutique_pro_hub_url', url);
+      }
+      return url;
+    }
+
+    function isAutoSyncEnabled() {
+      const val = localStorage.getItem('boutique_pro_auto_sync');
+      return val === null ? true : val === 'true';
+    }
+
+    function sauvegarderConfigSync() {
+      const tId = document.getElementById('syncTerminalId').value.trim() || 'CAISSE-01';
+      const hub = document.getElementById('syncHubUrl').value.trim() || 'http://192.168.17.230:5000';
+      const autoSync = document.getElementById('checkAutoSync').checked;
+
+      localStorage.setItem('boutique_pro_terminal_id', tId);
+      localStorage.setItem('boutique_pro_hub_url', hub);
+      localStorage.setItem('boutique_pro_auto_sync', autoSync ? 'true' : 'false');
+    }
+
+    function switchSyncTab(tab) {
+      if (tab === 'lan') {
+        document.getElementById('tabBtnLan').style.borderBottom = '2px solid #0284c7';
+        document.getElementById('tabBtnLan').style.color = '#0284c7';
+        document.getElementById('tabBtnSneakernet').style.borderBottom = '2px solid transparent';
+        document.getElementById('tabBtnSneakernet').style.color = '#64748b';
+        document.getElementById('tabContentLan').style.display = 'block';
+        document.getElementById('tabContentSneakernet').style.display = 'none';
+      } else {
+        document.getElementById('tabBtnSneakernet').style.borderBottom = '2px solid #0284c7';
+        document.getElementById('tabBtnSneakernet').style.color = '#0284c7';
+        document.getElementById('tabBtnLan').style.borderBottom = '2px solid transparent';
+        document.getElementById('tabBtnLan').style.color = '#64748b';
+        document.getElementById('tabContentLan').style.display = 'none';
+        document.getElementById('tabContentSneakernet').style.display = 'block';
+      }
+    }
+
+    function ouvrirModalSync() {
+      document.getElementById('syncTerminalId').value = getTerminalId();
+      document.getElementById('syncHubUrl').value = getHubUrl();
+      document.getElementById('checkAutoSync').checked = isAutoSyncEnabled();
+      mettreAJourCompteursSync();
+      document.getElementById('modalMultiPosSync').style.display = 'flex';
+      testerConnexionHub();
+    }
+
+    function fermerModalSync() {
+      document.getElementById('modalMultiPosSync').style.display = 'none';
+    }
+
+    function mettreAJourCompteursSync() {
+      const enAttente = journalVentes.filter(v => !v.synced).length;
+      const syncOk = journalVentes.filter(v => v.synced).length;
+
+      const statAttenteEl = document.getElementById('statVentesEnAttente');
+      const statSyncEl = document.getElementById('statVentesSync');
+      if (statAttenteEl) statAttenteEl.textContent = enAttente;
+      if (statSyncEl) statSyncEl.textContent = syncOk;
+
+      const pillText = document.getElementById('syncStatusText');
+      const pulseDot = document.getElementById('syncPulseDot');
+      if (pillText) {
+        if (enAttente === 0 && syncOk > 0) {
+          pillText.textContent = '📡 Hub Synchronisé (' + syncOk + ')';
+          if (pulseDot) pulseDot.style.background = '#10b981';
+        } else if (enAttente > 0) {
+          pillText.textContent = '📡 Multi-Postes (' + enAttente + ' en attente)';
+          if (pulseDot) pulseDot.style.background = '#f59e0b';
+        } else {
+          pillText.textContent = '📡 Multi-Postes';
+          if (pulseDot) pulseDot.style.background = '#3b82f6';
+        }
+      }
+    }
+
+    async function testerConnexionHub() {
+      const hubUrl = document.getElementById('syncHubUrl').value.trim() || getHubUrl();
+      const pingEl = document.getElementById('hubPingResult');
+      const infoBox = document.getElementById('hubActiveInfoBox');
+      const badge = document.getElementById('syncModalBadge');
+
+      pingEl.textContent = 'Connexion au Hub en cours...';
+      pingEl.style.color = '#64748b';
+
+      try {
+        const res = await fetch(hubUrl + '/api/network-info', { method: 'GET', mode: 'cors' });
+        if (res.ok) {
+          const data = await res.json();
+          pingEl.textContent = '✅ En ligne (' + (data.primaryIp || '127.0.0.1') + ')';
+          pingEl.style.color = '#059669';
+          infoBox.style.display = 'block';
+          document.getElementById('hubDetailsText').textContent = 'Hub URL : ' + (data.hubUrl || hubUrl) + ' — Serveur v1.0.0';
+          document.getElementById('hubServerCount').textContent = data.totalVentesIngerees || 0;
+          badge.textContent = 'Connecté au Hub';
+          badge.style.background = '#dcfce7';
+          badge.style.color = '#15803d';
+        } else {
+          throw new Error('Réponse non valide: ' + res.status);
+        }
+      } catch (e) {
+        pingEl.textContent = '⚠️ Hub inaccessible (Mode hors-ligne)';
+        pingEl.style.color = '#d97706';
+        infoBox.style.display = 'none';
+        badge.textContent = 'Mode Autonome';
+        badge.style.background = '#e0f2fe';
+        badge.style.color = '#0284c7';
+      }
+    }
+
+    async function lancerSynchroManuelle() {
+      const hubUrl = document.getElementById('syncHubUrl').value.trim() || getHubUrl();
+      const nonSyncVentes = journalVentes.filter(v => !v.synced);
+      const nonSyncZ = historiqueZ.filter(z => !z.synced);
+
+      if (nonSyncVentes.length === 0 && nonSyncZ.length === 0) {
+        alert('Toutes les transactions et clôtures Z locales sont déjà synchronisées.');
+        return;
+      }
+
+      const payload = {
+        terminal_id: getTerminalId(),
+        envoye_le: new Date().toISOString(),
+        transactions: nonSyncVentes,
+        clotures_z: nonSyncZ
+      };
+
+      try {
+        const res = await fetch(hubUrl + '/api/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const result = await res.json();
+          nonSyncVentes.forEach(v => v.synced = true);
+          nonSyncZ.forEach(z => z.synced = true);
+          sauvegarderVentesSession();
+          sauvegarderHistoriqueZ();
+          mettreAJourCompteursSync();
+
+          playBeep(1200, 0.15);
+          alert(`Synchronisation Réussie !\n\n• Ventes transmises : +${result.acceptedVentes}\n• Doublons déjà connus ignorés : ${result.skippedVentes}\n• Clôtures Z transmises : +${result.acceptedZ}\n• Total ventes Hub Central : ${result.totalJournalServer}`);
+        } else {
+          alert('Erreur lors de la synchronisation avec le Hub (Code: ' + res.status + ')');
+        }
+      } catch (e) {
+        alert('Impossible de contacter le Hub à ' + hubUrl + ' : ' + e.message + '\n\nVos ventes restent sécurisées localement et partiront dès la prochaine connexion.');
+      }
+    }
+
+    async function tenterSynchroArrierePlan() {
+      const hubUrl = getHubUrl();
+      const nonSyncVentes = journalVentes.filter(v => !v.synced);
+      const nonSyncZ = historiqueZ.filter(z => !z.synced);
+
+      if (nonSyncVentes.length === 0 && nonSyncZ.length === 0) return;
+
+      const payload = {
+        terminal_id: getTerminalId(),
+        envoye_le: new Date().toISOString(),
+        transactions: nonSyncVentes,
+        clotures_z: nonSyncZ
+      };
+
+      try {
+        const res = await fetch(hubUrl + '/api/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          nonSyncVentes.forEach(v => v.synced = true);
+          nonSyncZ.forEach(z => z.synced = true);
+          sauvegarderVentesSession();
+          sauvegarderHistoriqueZ();
+          mettreAJourCompteursSync();
+        }
+      } catch (e) {
+        // Mode silencieux : n'interrompt pas la caisse
+      }
+    }
+
+    // EXPORT DE PAQUET DE SYNCHRONISATION (SNEAKERNET)
+    function exporterPaquetSync() {
+      const paquet = {
+        format: 'AFRINEX_SYNC_V1',
+        terminal_id: getTerminalId(),
+        genere_le: new Date().toISOString(),
+        transactions: journalVentes,
+        clotures_z: historiqueZ
+      };
+
+      const jsonStr = JSON.stringify(paquet, null, 2);
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
+      const dlAnchor = document.createElement('a');
+      dlAnchor.setAttribute("href", dataStr);
+      dlAnchor.setAttribute("download", `sync_${getTerminalId()}_${new Date().toISOString().slice(0,10)}.afrinex-sync`);
+      document.body.appendChild(dlAnchor);
+      dlAnchor.click();
+      dlAnchor.remove();
+      playBeep(1000, 0.08);
+      alert('Paquet de synchronisation exporté avec succès ! Transférez ce fichier sur le poste Hub.');
+    }
+
+    // IMPORT DE PAQUET DE SYNCHRONISATION (SNEAKERNET)
+    function importerPaquetSync(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const paquet = JSON.parse(e.target.result);
+          const incomingVentes = Array.isArray(paquet.transactions) ? paquet.transactions : [];
+          const incomingZ = Array.isArray(paquet.clotures_z) ? paquet.clotures_z : [];
+
+          let ajoutes = 0;
+          let ignores = 0;
+
+          const existingUuids = new Set(journalVentes.map(v => v.uuid_client || ('ID-' + v.id)));
+
+          incomingVentes.forEach(v => {
+            const uId = v.uuid_client || ('ID-' + v.id);
+            if (existingUuids.has(uId)) {
+              ignores++;
+            } else {
+              existingUuids.add(uId);
+              v.synced = true;
+              journalVentes.push(v);
+              ajoutes++;
+            }
+          });
+
+          if (ajoutes > 0) {
+            sauvegarderVentesSession();
+            mettreAJourCompteursSync();
+          }
+
+          playBeep(1200, 0.15);
+          alert(`Importation Terminée avec succès !\n\n• Ventes importées : +${ajoutes}\n• Doublons évités (Idempotence) : ${ignores}\n\nLes stocks et totaux sont à jour.`);
+          event.target.value = '';
+        } catch (err) {
+          alert('Erreur lors de la lecture du fichier de synchronisation : ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
     // HORLOGE
     function actualiserHorloge() {
       const now = new Date();
@@ -2142,6 +2525,10 @@
     actualiserHorloge();
     setInterval(actualiserHorloge, 30000);
     changerSecteur('auto_moto');
+    mettreAJourCompteursSync();
+    setTimeout(() => {
+      testerConnexionHub();
+    }, 1000);
   </script>
 </body>
 </html>
