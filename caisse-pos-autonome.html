@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boutique Pro POS â€” Caisse Multi-Secteurs Dynamique</title>
+<title>Afrinex Boutique POS — Caisse Multi-Secteurs & Clôture Z</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -63,7 +63,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     cursor: pointer;
     background: linear-gradient(135deg, #3b82f6, #10b981, #f59e0b, #ec4899);
     padding: 2px;
@@ -95,6 +95,7 @@
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 20px;
+    position: relative;
   }
 
   .nav-btn:hover { background: #f8fafc; color: var(--primary); }
@@ -106,7 +107,7 @@
 
   .sidebar-spacer { flex: 1; }
 
-  /* 2. ZONE CENTRALE (CATALOGUE & HEADER) */
+  /* 2. ZONE CENTRALE DE CATALOGUE */
   .main-content {
     flex: 1;
     display: flex;
@@ -140,7 +141,6 @@
     font-weight: 500;
   }
 
-  /* SÃ‰LECTEUR DE SECTEUR D'ACTIVITÃ‰ */
   .sector-selector-wrap {
     display: flex;
     align-items: center;
@@ -230,7 +230,7 @@
 
   .search-box {
     position: relative;
-    width: 200px;
+    width: 190px;
   }
 
   .search-box input {
@@ -242,12 +242,10 @@
     font-size: 13px;
     color: #0f172a;
     outline: none;
-    transition: border 0.2s, box-shadow 0.2s;
   }
 
   .search-box input:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
   }
 
   .search-icon {
@@ -259,12 +257,12 @@
     font-size: 14px;
   }
 
-  .btn-add-product {
+  .btn-header-action {
     background: #2563eb;
     color: #ffffff;
     border: none;
     border-radius: 10px;
-    padding: 8px 14px;
+    padding: 8px 13px;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
@@ -274,12 +272,23 @@
     transition: all 0.2s;
   }
 
-  .btn-add-product:hover {
+  .btn-header-action:hover {
     background: #1d4ed8;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
   }
 
-  /* BARRE DES CATÃ‰GORIES (RAYONS) */
+  .btn-cloture-z {
+    background: #0f172a;
+    color: #ffffff;
+    border: 1px solid #334155;
+  }
+
+  .btn-cloture-z:hover {
+    background: #1e293b;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+  }
+
+  /* BARRE DES CATÉGORIES (RAYONS) */
   .categories-bar {
     display: flex;
     gap: 10px;
@@ -664,8 +673,8 @@
     background: #ffffff;
     border-radius: 18px;
     padding: 24px;
-    width: 440px;
-    max-width: 92vw;
+    width: 480px;
+    max-width: 94vw;
     box-shadow: 0 20px 40px rgba(0,0,0,0.25);
     display: flex;
     flex-direction: column;
@@ -686,17 +695,13 @@
     color: #475569;
   }
 
-  .form-group input, .form-group select {
+  .form-group input, .form-group select, .form-group textarea {
     padding: 9px 12px;
     border-radius: 8px;
     border: 1px solid var(--border);
     font-size: 13.5px;
     color: #0f172a;
     outline: none;
-  }
-
-  .form-group input:focus, .form-group select:focus {
-    border-color: var(--primary);
   }
 
   .receipt-paper {
@@ -714,6 +719,39 @@
   .receipt-center { text-align: center; }
   .receipt-divider { border-top: 1px dashed #9ca3af; margin: 8px 0; }
   .receipt-line { display: flex; justify-content: space-between; }
+
+  /* ÉCART DE CAISSE STYLING */
+  .ecart-badge {
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+
+  .ecart-parfait { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+  .ecart-manquant { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+  .ecart-surplus { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+
+  .stat-card-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px;
+  }
+
+  .stat-card-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; }
+  .stat-card-val { font-size: 17px; color: #0f172a; font-weight: 800; margin-top: 2px; }
 
   .btn-modal-primary {
     background: #2563eb;
@@ -738,39 +776,40 @@
 </head>
 <body>
 
-  <!-- 1. BARRE LATÃ‰RALE DE NAVIGATION GAUCHE -->
+  <!-- 1. BARRE LATÉRALE DE NAVIGATION GAUCHE -->
   <aside class="sidebar">
-    <div class="app-logo" title="Boutique Pro POS">
-      <div class="app-logo-inner">âœ¦</div>
+    <div class="app-logo" title="Afrinex Boutique POS">
+      <div class="app-logo-inner">✦</div>
     </div>
-    <button class="nav-btn active" title="Caisse de Vente">âŠž</button>
-    <button class="nav-btn" title="Ajouter un Produit" onclick="ouvrirModalAjout()">âž•</button>
-    <button class="nav-btn" title="Sauvegarde & Export" onclick="exporterDonnees()">ðŸ’¾</button>
-    <button class="nav-btn" title="Clients" onclick="ouvrirModalClient()">ðŸ‘¥</button>
+    <button class="nav-btn active" title="Caisse de Vente">⊞</button>
+    <button class="nav-btn" title="Clôture de Caisse (Ticket Z)" onclick="ouvrirModalClotureZ()">📊</button>
+    <button class="nav-btn" title="Historique des Clôtures Z" onclick="ouvrirModalHistoriqueZ()">📜</button>
+    <button class="nav-btn" title="Ajouter un Produit" onclick="ouvrirModalAjout()">➕</button>
+    <button class="nav-btn" title="Sauvegarde & Export" onclick="exporterDonnees()">💾</button>
     <div class="sidebar-spacer"></div>
-    <button class="nav-btn" title="RÃ©initialiser Catalogue" onclick="reinitialiserCatalogueDefaut()">ðŸ”„</button>
+    <button class="nav-btn" title="Réinitialiser Catalogue" onclick="reinitialiserCatalogueDefaut()">🔄</button>
   </aside>
 
   <!-- 2. ZONE CENTRALE DE CATALOGUE -->
   <main class="main-content">
     
-    <!-- EN-TÃŠTE PRINCIPAL -->
+    <!-- EN-TÊTE PRINCIPAL -->
     <header class="top-header">
       <div class="header-titles">
-        <h1 id="shopTitleHeader">Boutique Pro Multi-Secteurs</h1>
+        <h1 id="shopTitleHeader">Afrinex Boutique Multi-Secteurs</h1>
         <span id="shopSubtitleHeader">Comptoir de vente & Quincaillerie</span>
       </div>
 
-      <!-- SÃ‰LECTEUR DE SECTEUR D'ACTIVITÃ‰ -->
+      <!-- SÉLECTEUR DE SECTEUR D'ACTIVITÉ -->
       <div class="sector-selector-wrap">
         <label>Secteur :</label>
         <select class="sector-select" id="sectorSelect" onchange="changerSecteur(this.value)">
-          <option value="tout">ðŸŒ Tous les Rayons</option>
-          <option value="auto_moto" selected>ðŸš— PiÃ¨ces Auto & Moto</option>
-          <option value="electricite">âš¡ Ã‰lectricitÃ© & Ã‰nergie</option>
-          <option value="plomberie">ðŸ”§ Plomberie & Sanitaire</option>
-          <option value="pharmacie">ðŸ’Š Pharmacie & SantÃ©</option>
-          <option value="epicerie">ðŸ›’ Ã‰picerie & Alimentation</option>
+          <option value="tout">🌐 Tous les Rayons</option>
+          <option value="auto_moto" selected>🚗 Pièces Auto & Moto</option>
+          <option value="electricite">⚡ Électricité & Énergie</option>
+          <option value="plomberie">🔧 Plomberie & Sanitaire</option>
+          <option value="pharmacie">💊 Pharmacie & Santé</option>
+          <option value="epicerie">🛒 Épicerie & Alimentation</option>
         </select>
       </div>
 
@@ -784,29 +823,26 @@
         <div class="currency-switcher">
           <button class="currency-btn active" onclick="setCurrency('GNF')">GNF (FG)</button>
           <button class="currency-btn" onclick="setCurrency('XOF')">FCFA (F)</button>
-          <button class="currency-btn" onclick="setCurrency('EUR')">EUR (â‚¬)</button>
+          <button class="currency-btn" onclick="setCurrency('EUR')">EUR (€)</button>
           <button class="currency-btn" onclick="setCurrency('USD')">USD ($)</button>
         </div>
 
         <!-- RECHERCHE & CODE-BARRES -->
         <div class="search-box">
-          <span class="search-icon">ðŸ”</span>
+          <span class="search-icon">🔍</span>
           <input type="text" id="searchInput" placeholder="Recherche ou scan code..." oninput="filtrerProduits()">
         </div>
 
-        <button class="btn-add-product" onclick="ouvrirModalAjout()">+ Produit</button>
+        <button class="btn-header-action btn-cloture-z" onclick="ouvrirModalClotureZ()">🔒 Clôture (Z)</button>
+        <button class="btn-header-action" onclick="ouvrirModalAjout()">+ Produit</button>
       </div>
     </header>
 
-    <!-- PILULES DE CATÃ‰GORIES (RAYONS DU SECTEUR) -->
-    <nav class="categories-bar" id="categoriesBar">
-      <!-- GÃ©nÃ©rÃ©es dynamiquement selon le secteur -->
-    </nav>
+    <!-- PILULES DE CATÉGORIES (RAYONS DU SECTEUR) -->
+    <nav class="categories-bar" id="categoriesBar"></nav>
 
     <!-- GRILLE DES PRODUITS DYNAMIQUE -->
-    <section class="products-grid" id="productsGrid">
-      <!-- Cartes de produits gÃ©nÃ©rÃ©es dynamiquement -->
-    </section>
+    <section class="products-grid" id="productsGrid"></section>
 
   </main>
 
@@ -815,18 +851,18 @@
     <div class="ticket-header">
       <div class="ticket-title">
         <span id="ticketNumberLabel">Ticket #04523</span>
-        <span style="font-size: 13px; font-weight: 600; color: #10b981;">â— En cours</span>
+        <span style="font-size: 13px; font-weight: 600; color: #10b981;">● En cours</span>
       </div>
       <div class="ticket-meta">
         <span id="clientNameLabel">Client: Comptoir</span>
-        <span id="liveClock">24 Nov 2026, 21:55</span>
+        <span id="liveClock">25 Nov 2026, 18:25</span>
       </div>
     </div>
 
     <!-- LISTE DU PANIER -->
     <div class="cart-items-container" id="cartContainer"></div>
 
-    <!-- TOTAUX CALCULÃ‰S -->
+    <!-- TOTAUX CALCULÉS -->
     <div class="ticket-totals">
       <div class="total-row">
         <span>Sous-total:</span>
@@ -837,34 +873,202 @@
         <span id="taxLabel">0 GNF</span>
       </div>
       <div class="total-row grand-total">
-        <span>TOTAL Ã€ PAYER:</span>
+        <span>TOTAL À PAYER:</span>
         <span class="total-value-big" id="totalLabel">0 GNF</span>
       </div>
     </div>
 
     <!-- BOUTONS DE PAIEMENT CONFORMES -->
     <div class="payment-actions-grid">
-      <button class="btn-pay pay-especes" onclick="encaisser('EspÃ¨ces')">
-        ðŸ’¶ EspÃ¨ces
-      </button>
-      <button class="btn-pay pay-orange" onclick="encaisser('Orange Money')">
-        Orange Money
-      </button>
-      <button class="btn-pay pay-mtn" onclick="encaisser('MTN Mobile Money')">
-        MTN / Wave
-      </button>
+      <button class="btn-pay pay-especes" onclick="encaisser('Espèces')">💶 Espèces</button>
+      <button class="btn-pay pay-orange" onclick="encaisser('Orange Money')">Orange Money</button>
+      <button class="btn-pay pay-mtn" onclick="encaisser('MTN Mobile Money')">MTN / Wave</button>
       <button class="btn-pay pay-cb" onclick="encaisser('Carte Bancaire')">
         <span>Carte Bancaire</span>
-        <span class="card-logos">VISA â— MC</span>
+        <span class="card-logos">VISA ● MC</span>
       </button>
     </div>
 
     <!-- ACTIONS SECONDAIRES -->
     <div class="bottom-actions">
-      <button class="btn-secondary" onclick="ouvrirModalClient()">ðŸ‘¤ Client</button>
+      <button class="btn-secondary" onclick="ouvrirModalClient()">👤 Client</button>
       <button class="btn-secondary btn-cancel" onclick="viderPanier()">Annuler</button>
     </div>
   </aside>
+
+  <!-- MODAL CLÔTURE DE CAISSE JOURNALIÈRE (TICKET Z) -->
+  <div class="modal-overlay" id="modalClotureZ">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a;">🔒 Clôture Journalière (Ticket Z)</h3>
+        <span style="font-size:12px; font-weight:700; color:#2563eb; background:#eff6ff; padding:3px 8px; border-radius:6px;" id="sessionZBadge">Session active</span>
+      </div>
+
+      <div class="stat-card-row">
+        <div class="stat-card">
+          <div class="stat-card-label">Ventes du jour</div>
+          <div class="stat-card-val" id="statZNombreVentes">0 tickets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Chiffre d'Affaires</div>
+          <div class="stat-card-val" id="statZTotalCA" style="color:#16a34a;">0 GNF</div>
+        </div>
+      </div>
+
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-bottom:14px;">
+        <div style="font-size:12px; font-weight:800; color:#475569; margin-bottom:8px; text-transform:uppercase;">Ventilation par mode de règlement</div>
+        <div class="receipt-line" style="font-size:13px; margin-bottom:4px;">
+          <span>💶 Espèces encaissées :</span>
+          <strong id="statZEspeces">0 GNF</strong>
+        </div>
+        <div class="receipt-line" style="font-size:13px; margin-bottom:4px;">
+          <span>🟠 Orange Money :</span>
+          <strong id="statZOrange">0 GNF</strong>
+        </div>
+        <div class="receipt-line" style="font-size:13px; margin-bottom:4px;">
+          <span>🟡 MTN / Wave :</span>
+          <strong id="statZMTN">0 GNF</strong>
+        </div>
+        <div class="receipt-line" style="font-size:13px;">
+          <span>💳 Carte Bancaire :</span>
+          <strong id="statZCB">0 GNF</strong>
+        </div>
+      </div>
+
+      <!-- COMPTAGE PHYSIQUE DES ESPÈCES -->
+      <div style="border-top:1px dashed #cbd5e1; padding-top:12px; margin-bottom:14px;">
+        <div class="form-group">
+          <label>Fond de caisse d'ouverture (fixe)</label>
+          <input type="number" id="inputFondCaisse" value="100000" oninput="calculerEcartZ()">
+        </div>
+
+        <div class="receipt-line" style="font-size:13px; margin-bottom:6px; color:#475569;">
+          <span>Espèces théoriques attendues dans le tiroir :</span>
+          <strong id="valeurTheoriqueTiroir">100 000 GNF</strong>
+        </div>
+
+        <div class="form-group">
+          <label>Comptage Physique Réel du Tiroir (espèces comptées) *</label>
+          <input type="number" id="inputComptageReel" placeholder="Saisir le montant physique compté..." oninput="calculerEcartZ()">
+        </div>
+
+        <div id="badgeEcartZ" class="ecart-badge ecart-parfait" style="display:none;">
+          <span id="texteEcartZ">Caisse Conforme</span>
+          <span id="montantEcartZ">0 GNF</span>
+        </div>
+
+        <div class="form-group" id="groupJustificationEcart" style="display:none; margin-top:8px;">
+          <label style="color:#b91c1c;">Motif obligatoire de l'écart :</label>
+          <input type="text" id="inputJustifEcart" placeholder="Ex: erreur de rendu monnaie, billet abîmé...">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn-modal-primary" style="flex:2; background:#0f172a;" onclick="validerClotureZ()">Valider & Sceller Ticket Z</button>
+        <button class="btn-modal-close" style="flex:1;" onclick="fermerModalClotureZ()">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL TICKET Z IMPRIMABLE (OFFICIEL) -->
+  <div class="modal-overlay" id="modalTicketZReceipt">
+    <div class="modal-content">
+      <div style="font-weight: 800; font-size: 18px; text-align: center; color: #0f172a;">Clôture Z Validée & Enregistrée</div>
+      
+      <div class="receipt-paper" id="paperTicketZ">
+        <div class="receipt-center">
+          <strong>AFRINEX BOUTIQUE</strong><br>
+          Caisse n°1 — Système NF525 Sécurisé<br>
+          RCCM : GN-CON-2024-B-8492 — NIF : 849204920<br>
+          ---------------------------------------<br>
+          <strong>*** TICKET Z — CLÔTURE JOURNALIÈRE ***</strong>
+        </div>
+        <div class="receipt-divider"></div>
+        <div class="receipt-line">
+          <span id="zReceiptNum">Z n° : Z-0001</span>
+          <span id="zReceiptDate">25/11/2026 18:30</span>
+        </div>
+        <div class="receipt-line">
+          <span>Caissier : Caissier 1</span>
+          <span id="zReceiptTicketsCount">Tickets : 4</span>
+        </div>
+        <div class="receipt-divider"></div>
+        <div class="receipt-line">
+          <strong>TOTAL RECETTES TTC :</strong>
+          <strong id="zReceiptTotalCA">0 GNF</strong>
+        </div>
+        <div class="receipt-line">
+          <span>Total Base HT :</span>
+          <span id="zReceiptTotalHT">0 GNF</span>
+        </div>
+        <div class="receipt-line">
+          <span>Total TVA :</span>
+          <span id="zReceiptTotalTVA">0 GNF</span>
+        </div>
+        <div class="receipt-divider"></div>
+        <div style="font-weight:bold; margin-bottom:4px;">VENTILATION DES PAIEMENTS :</div>
+        <div class="receipt-line">
+          <span>- Espèces :</span>
+          <span id="zReceiptEspeces">0 GNF</span>
+        </div>
+        <div class="receipt-line">
+          <span>- Orange Money :</span>
+          <span id="zReceiptOrange">0 GNF</span>
+        </div>
+        <div class="receipt-line">
+          <span>- MTN / Wave :</span>
+          <span id="zReceiptMTN">0 GNF</span>
+        </div>
+        <div class="receipt-line">
+          <span>- Carte Bancaire :</span>
+          <span id="zReceiptCB">0 GNF</span>
+        </div>
+        <div class="receipt-divider"></div>
+        <div style="font-weight:bold; margin-bottom:4px;">CONTRÔLE TIROIR-CAISSE :</div>
+        <div class="receipt-line">
+          <span>Fond d'ouverture :</span>
+          <span id="zReceiptFondInitial">0 GNF</span>
+        </div>
+        <div class="receipt-line">
+          <span>Espèces théoriques :</span>
+          <span id="zReceiptEspTheorique">0 GNF</span>
+        </div>
+        <div class="receipt-line">
+          <span>Comptage physique réel :</span>
+          <span id="zReceiptEspReel">0 GNF</span>
+        </div>
+        <div class="receipt-line" style="font-weight:bold;">
+          <span>ÉCART DE CAISSE :</span>
+          <span id="zReceiptEcart">0 GNF</span>
+        </div>
+        <div id="zReceiptJustifLine" class="receipt-line" style="display:none; color:#b91c1c; font-size:11px;">
+          <span>Motif écart : <span id="zReceiptMotif"></span></span>
+        </div>
+        <div class="receipt-divider"></div>
+        <div class="receipt-center" style="font-size: 10px; color: #6b7280;">
+          Scellement Cryptographique :<br>
+          <span id="zReceiptSignature" style="word-break: break-all;">SHA256:d8a4...7b12</span><br><br>
+          *** FIN DU TICKET Z — ARCHIVÉ ***
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn-modal-primary" style="flex:1;" onclick="window.print()">🖨️ Imprimer Ticket Z</button>
+        <button class="btn-modal-close" style="flex:1;" onclick="fermerModalTicketZ()">Fermer & Nouvelle Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL HISTORIQUE DES CLÔTURES Z -->
+  <div class="modal-overlay" id="modalHistoriqueZ">
+    <div class="modal-content" style="width: 580px;">
+      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 12px;">📜 Historique des Clôtures Z</h3>
+      <div id="listeHistoriqueZ" style="max-height: 380px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
+      <div style="margin-top:14px; text-align:right;">
+        <button class="btn-modal-close" onclick="fermerModalHistoriqueZ()">Fermer</button>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL AJOUT D'UN PRODUIT -->
   <div class="modal-overlay" id="modalAjoutProduit">
@@ -873,22 +1077,22 @@
       
       <div class="form-group">
         <label>Nom de l'article *</label>
-        <input type="text" id="nouveauNom" placeholder="Ex: Filtre Ã  carburant Diesel...">
+        <input type="text" id="nouveauNom" placeholder="Ex: Filtre à carburant Diesel...">
       </div>
 
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
         <div class="form-group">
           <label>Secteur *</label>
           <select id="nouveauSecteur">
-            <option value="auto_moto">ðŸš— PiÃ¨ces Auto & Moto</option>
-            <option value="electricite">âš¡ Ã‰lectricitÃ©</option>
-            <option value="plomberie">ðŸ”§ Plomberie</option>
-            <option value="pharmacie">ðŸ’Š Pharmacie</option>
-            <option value="epicerie">ðŸ›’ Ã‰picerie</option>
+            <option value="auto_moto">🚗 Pièces Auto & Moto</option>
+            <option value="electricite">⚡ Électricité</option>
+            <option value="plomberie">🔧 Plomberie</option>
+            <option value="pharmacie">💊 Pharmacie</option>
+            <option value="epicerie">🛒 Épicerie</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Rayon / CatÃ©gorie *</label>
+          <label>Rayon / Catégorie *</label>
           <input type="text" id="nouvelleCategorie" placeholder="Ex: filtration, freinage...">
         </div>
       </div>
@@ -899,7 +1103,7 @@
           <input type="number" id="nouveauPrixGNF" placeholder="Ex: 85000">
         </div>
         <div class="form-group">
-          <label>Prix EUR (â‚¬) *</label>
+          <label>Prix EUR (€) *</label>
           <input type="number" step="0.1" id="nouveauPrixEUR" placeholder="Ex: 8.50">
         </div>
       </div>
@@ -910,13 +1114,13 @@
           <input type="number" id="nouveauStock" value="20">
         </div>
         <div class="form-group">
-          <label>Code-barres / RÃ©f</label>
+          <label>Code-barres / Réf</label>
           <input type="text" id="nouveauCode" placeholder="Ex: 384920">
         </div>
       </div>
 
       <div class="form-group">
-        <label>Image du produit (TÃ©lÃ©verser ou choisir une photo)</label>
+        <label>Image du produit (Téléverser ou choisir une photo)</label>
         <input type="file" id="nouveauFichierImage" accept="image/*" onchange="previsualiserImageUpload(event)">
         <div id="apercuImageUpload" style="margin-top:6px; text-align:center; display:none;">
           <img id="imgPreview" style="max-height:80px; border-radius:8px; border:1px solid #cbd5e1;">
@@ -930,44 +1134,44 @@
     </div>
   </div>
 
-  <!-- MODAL DU REÃ‡U FISCAL -->
+  <!-- MODAL DU REÇU TICKET DE VENTE -->
   <div class="modal-overlay" id="receiptModal">
     <div class="modal-content">
-      <div style="font-weight: 800; font-size: 18px; text-align: center; color: #0f172a;">Ticket EncaissÃ© avec SuccÃ¨s</div>
+      <div style="font-weight: 800; font-size: 18px; text-align: center; color: #0f172a;">Ticket Encaissé avec Succès</div>
       
       <div class="receipt-paper" id="receiptPaper">
         <div class="receipt-center">
-          <strong id="receiptShopName">BOUTIQUE PRO COMPTOIR</strong><br>
-          Caisse nÂ°1 â€” Local-First<br>
-          TÃ©l: +224 620 00 00 00 / +33 1 00 00 00<br>
+          <strong id="receiptShopName">AFRINEX BOUTIQUE COMPTOIR</strong><br>
+          Caisse n°1 — Local-First<br>
+          Tél: +224 620 00 00 00 / +33 1 00 00 00<br>
           NIF / RCCM : GN-CON-2024-B-8492
         </div>
         <div class="receipt-divider"></div>
         <div class="receipt-line">
           <span id="receiptTicketNum">Ticket : #04523</span>
-          <span id="receiptDate">24/11/2026</span>
+          <span id="receiptDate">25/11/2026</span>
         </div>
         <div class="receipt-line">
           <span id="receiptClient">Client : Comptoir</span>
-          <span id="receiptMode">Paiement : EspÃ¨ces</span>
+          <span id="receiptMode">Paiement : Espèces</span>
         </div>
         <div class="receipt-divider"></div>
         <div id="receiptItems"></div>
         <div class="receipt-divider"></div>
         <div class="receipt-line">
-          <strong>TOTAL PAYÃ‰ :</strong>
+          <strong>TOTAL PAYÉ :</strong>
           <strong id="receiptTotal">0 GNF</strong>
         </div>
         <div class="receipt-divider"></div>
         <div class="receipt-center" style="font-size: 10px; color: #6b7280;">
-          Hash NF525 SÃ©curisÃ© :<br>
+          Hash NF525 Sécurisé :<br>
           <span id="receiptHash" style="word-break: break-all;">9e8a...3f12</span><br><br>
-          Merci de votre confiance et Ã  bientÃ´t !
+          Merci de votre confiance et à bientôt !
         </div>
       </div>
 
       <div style="display:flex; gap:10px;">
-        <button class="btn-modal-primary" style="flex:1;" onclick="window.print()">ðŸ–¨ï¸ Imprimer ReÃ§u</button>
+        <button class="btn-modal-primary" style="flex:1;" onclick="window.print()">🖨️ Imprimer Reçu</button>
         <button class="btn-modal-close" style="flex:1;" onclick="fermerModalReceipt()">Nouvelle Vente</button>
       </div>
     </div>
@@ -976,7 +1180,7 @@
   <script>
     // 1. CATALOGUE MULTI-SECTEUR INITIAL AVEC VRAIES PHOTOS
     const CATALOGUE_INITIAL = [
-      // === SECTEUR 1 : PIÃˆCES DÃ‰TACHÃ‰ES AUTO & MOTO ===
+      // === SECTEUR 1 : PIÈCES DÉTACHÉES AUTO & MOTO ===
       {
         id: 101,
         nom: 'Batterie Voiture 12V 70Ah 640A',
@@ -1005,7 +1209,7 @@
       },
       {
         id: 103,
-        nom: 'Filtre Ã  Huile Moteur PF47',
+        nom: 'Filtre à Huile Moteur PF47',
         secteur: 'auto_moto',
         categorie: 'filtration',
         code: 'FIL-PF47',
@@ -1018,7 +1222,7 @@
       },
       {
         id: 104,
-        nom: 'Huile SynthÃ©tique 10W-40 Bidon 5L',
+        nom: 'Huile Synthétique 10W-40 Bidon 5L',
         secteur: 'auto_moto',
         categorie: 'lubrifiant',
         code: 'OIL-10W40-5L',
@@ -1044,7 +1248,7 @@
       },
       {
         id: 106,
-        nom: 'Pneu Moto ArriÃ¨re 3.00-17 RenforcÃ©',
+        nom: 'Pneu Moto Arrière 3.00-17 Renforcé',
         secteur: 'auto_moto',
         categorie: 'pneumatique',
         code: 'TYR-30017',
@@ -1056,7 +1260,7 @@
         image: './assets/products/pneu_moto.svg'
       },
 
-      // === SECTEUR 2 : Ã‰LECTRICITÃ‰ & Ã‰NERGIE ===
+      // === SECTEUR 2 : ÉLECTRICITÉ & ÉNERGIE ===
       {
         id: 201,
         nom: 'Disjoncteur Schneider Acti9 16A',
@@ -1072,7 +1276,7 @@
       },
       {
         id: 202,
-        nom: 'Fil Ã‰lectrique H07V-U 2.5mmÂ² (100m)',
+        nom: 'Fil Électrique H07V-U 2.5mm² (100m)',
         secteur: 'electricite',
         categorie: 'cables',
         code: 'CAB-25MM',
@@ -1113,7 +1317,7 @@
       // === SECTEUR 3 : PLOMBERIE & SANITAIRE ===
       {
         id: 301,
-        nom: 'Vanne d\'ArrÃªt Laiton 1/4 Tour Ã˜20/27',
+        nom: 'Vanne d\'Arrêt Laiton 1/4 Tour Ø20/27',
         secteur: 'plomberie',
         categorie: 'vannes',
         code: 'VAN-LAITON-20',
@@ -1126,7 +1330,7 @@
       },
       {
         id: 302,
-        nom: 'Mitigeur Lavabo ChromÃ© CÃ©ramique',
+        nom: 'Mitigeur Lavabo Chromé Céramique',
         secteur: 'plomberie',
         categorie: 'robinetterie',
         code: 'MIT-CHROME-01',
@@ -1138,10 +1342,10 @@
         image: './assets/products/mitigeur.svg'
       },
 
-      // === SECTEUR 4 : PHARMACIE & SANTÃ‰ ===
+      // === SECTEUR 4 : PHARMACIE & SANTÉ ===
       {
         id: 401,
-        nom: 'Doliprane 500mg 16 ComprimÃ©s',
+        nom: 'Doliprane 500mg 16 Comprimés',
         secteur: 'pharmacie',
         categorie: 'antalgique',
         code: 'DOL-500MG',
@@ -1154,7 +1358,7 @@
       },
       {
         id: 402,
-        nom: 'Vitamine C 1000mg 180 GÃ©lules',
+        nom: 'Vitamine C 1000mg 180 Gélules',
         secteur: 'pharmacie',
         categorie: 'vitamines',
         code: 'VIT-C1000',
@@ -1166,7 +1370,7 @@
         image: './assets/products/vitamine_c.jpg'
       },
 
-      // === SECTEUR 5 : Ã‰PICERIE & ALIMENTATION ===
+      // === SECTEUR 5 : ÉPICERIE & ALIMENTATION ===
       {
         id: 501,
         nom: 'Pain de mie Complet 14 Tranches',
@@ -1195,7 +1399,7 @@
       },
       {
         id: 503,
-        nom: 'Lait Ã‰crÃ©mÃ© UHT Brique 1L',
+        nom: 'Lait Écrémé UHT Brique 1L',
         secteur: 'epicerie',
         categorie: 'laiterie',
         code: 'LAIT-1L',
@@ -1208,10 +1412,13 @@
       }
     ];
 
-    // GESTION DU STOCKAGE PERSISTANT LOCAL
-    const STORAGE_KEY = 'boutique_pro_catalogue_v2';
+    // PERSISTANCE LOCALSTORAGE
+    const STORAGE_KEY_CATALOGUE = 'boutique_pro_catalogue_v3';
+    const STORAGE_KEY_VENTES = 'boutique_pro_ventes_v3';
+    const STORAGE_KEY_CLOTURES = 'boutique_pro_clotures_z_v3';
+
     function chargerCatalogue() {
-      const data = localStorage.getItem(STORAGE_KEY);
+      const data = localStorage.getItem(STORAGE_KEY_CATALOGUE);
       if (data) {
         try { return JSON.parse(data); } catch (e) {}
       }
@@ -1219,29 +1426,53 @@
     }
 
     function sauvegarderCatalogue() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(catalogue));
+      localStorage.setItem(STORAGE_KEY_CATALOGUE, JSON.stringify(catalogue));
+    }
+
+    function chargerVentesSession() {
+      const data = localStorage.getItem(STORAGE_KEY_VENTES);
+      if (data) {
+        try { return JSON.parse(data); } catch (e) {}
+      }
+      return [];
+    }
+
+    function sauvegarderVentesSession() {
+      localStorage.setItem(STORAGE_KEY_VENTES, JSON.stringify(journalVentes));
+    }
+
+    function chargerHistoriqueZ() {
+      const data = localStorage.getItem(STORAGE_KEY_CLOTURES);
+      if (data) {
+        try { return JSON.parse(data); } catch (e) {}
+      }
+      return [];
+    }
+
+    function sauvegarderHistoriqueZ() {
+      localStorage.setItem(STORAGE_KEY_CLOTURES, JSON.stringify(historiqueZ));
     }
 
     let catalogue = chargerCatalogue();
+    let journalVentes = chargerVentesSession();
+    let historiqueZ = chargerHistoriqueZ();
     let panier = [];
     let deviseActive = 'GNF';
     let secteurActif = 'auto_moto';
     let categorieFiltre = 'tout';
     let clientActif = 'Comptoir';
     let uploadedImageBase64 = null;
-    let ticketSeq = 4523;
+    let ticketSeq = 4524 + journalVentes.length;
 
-    // DÃ©finition des libellÃ©s de secteurs
     const LABELS_SECTEURS = {
-      'auto_moto': { titre: 'Comptoir PiÃ¨ces Auto & Moto', sousTitre: 'Garages, VÃ©hicules & Deux-Roues' },
-      'electricite': { titre: 'Comptoir Ã‰lectricitÃ© & Ã‰nergie', sousTitre: 'BÃ¢timent, CÃ¢blage & Ã‰clairage' },
+      'auto_moto': { titre: 'Comptoir Pièces Auto & Moto', sousTitre: 'Garages, Véhicules & Deux-Roues' },
+      'electricite': { titre: 'Comptoir Électricité & Énergie', sousTitre: 'Bâtiment, Câblage & Éclairage' },
       'plomberie': { titre: 'Quincaillerie Plomberie & Sanitaire', sousTitre: 'Tubes, Vannes & Robinetterie' },
-      'pharmacie': { titre: 'Pharmacie & MatÃ©riel MÃ©dical', sousTitre: 'SantÃ©, MÃ©dicaments & Soins' },
-      'epicerie': { titre: 'Superette & Alimentation GÃ©nÃ©rale', sousTitre: 'Produits Frais & Boissons' },
-      'tout': { titre: 'Boutique Pro Multi-Secteurs', sousTitre: 'Comptoir de vente global' }
+      'pharmacie': { titre: 'Pharmacie & Matériel Médical', sousTitre: 'Santé, Médicaments & Soins' },
+      'epicerie': { titre: 'Superette & Alimentation Générale', sousTitre: 'Produits Frais & Boissons' },
+      'tout': { titre: 'Afrinex Boutique Multi-Secteurs', sousTitre: 'Comptoir de vente global' }
     };
 
-    // AUDIO FEEDBACK
     function playBeep(freq = 880, duration = 0.05) {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1257,11 +1488,10 @@
       } catch (e) {}
     }
 
-    // MULTI-DEVISES
     function formatPrix(produit) {
       if (deviseActive === 'GNF') return produit.prixGNF.toLocaleString('fr-FR') + ' GNF';
       if (deviseActive === 'XOF') return produit.prixXOF.toLocaleString('fr-FR') + ' FCFA';
-      if (deviseActive === 'EUR') return 'â‚¬' + produit.prixEUR.toFixed(2);
+      if (deviseActive === 'EUR') return '€' + produit.prixEUR.toFixed(2);
       if (deviseActive === 'USD') return '$' + produit.prixUSD.toFixed(2);
       return produit.prixGNF.toLocaleString('fr-FR') + ' GNF';
     }
@@ -1277,7 +1507,7 @@
     function formaterTotal(montant) {
       if (deviseActive === 'GNF') return Math.round(montant).toLocaleString('fr-FR') + ' GNF';
       if (deviseActive === 'XOF') return Math.round(montant).toLocaleString('fr-FR') + ' FCFA';
-      if (deviseActive === 'EUR') return 'â‚¬' + montant.toFixed(2);
+      if (deviseActive === 'EUR') return '€' + montant.toFixed(2);
       if (deviseActive === 'USD') return '$' + montant.toFixed(2);
       return Math.round(montant).toLocaleString('fr-FR') + ' GNF';
     }
@@ -1291,7 +1521,6 @@
       mettreAJourPanier();
     }
 
-    // GESTION DU CHANGEMENT DE SECTEUR
     function changerSecteur(secteur) {
       secteurActif = secteur;
       categorieFiltre = 'tout';
@@ -1307,7 +1536,6 @@
     function actualiserRayonsCategories() {
       const container = document.getElementById('categoriesBar');
       const prodsSecteur = secteurActif === 'tout' ? catalogue : catalogue.filter(p => p.secteur === secteurActif);
-
       const categoriesDispos = Array.from(new Set(prodsSecteur.map(p => p.categorie)));
 
       let html = `<button class="cat-pill ${categorieFiltre === 'tout' ? 'active' : ''}" onclick="filtrerCategorie('tout', this)">Tous les Rayons</button>`;
@@ -1325,7 +1553,6 @@
       afficherProduits();
     }
 
-    // RENDU DES PRODUITS DANS LA GRILLE
     function afficherProduits() {
       const grid = document.getElementById('productsGrid');
       const recherche = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -1340,7 +1567,7 @@
       });
 
       if (produitsFiltres.length === 0) {
-        grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#64748b;">Aucun produit trouvÃ© dans ce rayon.<br><button class="btn-add-product" style="margin:12px auto;" onclick="ouvrirModalAjout()">+ Ajouter le premier produit</button></div>';
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#64748b;">Aucun produit trouvé dans ce rayon.<br><button class="btn-header-action" style="margin:12px auto;" onclick="ouvrirModalAjout()">+ Ajouter le premier produit</button></div>';
         return;
       }
 
@@ -1365,7 +1592,7 @@
             <div class="product-title" title="${p.nom}">${p.nom}</div>
             <div class="product-price">${formatPrix(p)}</div>
             <div class="product-stock">
-              <span class="${p.stock < 5 ? 'stock-low' : ''}">Stock: ${p.stock} unitÃ©s</span>
+              <span class="${p.stock < 5 ? 'stock-low' : ''}">Stock: ${p.stock} unités</span>
               ${p.stock <= 0 ? '<span style="color:#dc2626; font-weight:800;">RUPTURE</span>' : ''}
             </div>
           </div>
@@ -1373,15 +1600,11 @@
       }).join('');
     }
 
-    function filtrerProduits() {
-      afficherProduits();
-    }
+    function filtrerProduits() { afficherProduits(); }
 
-    // AJOUT AU PANIER
     function ajouterAuPanier(id) {
       const prod = catalogue.find(p => p.id === id);
       if (!prod) return;
-
       if (prod.stock <= 0) {
         alert('Attention : Ce produit est en rupture physique de stock.');
         return;
@@ -1459,7 +1682,7 @@
         `;
       }).join('');
 
-      const tva = sousTotal * 0.18; // Taux 18% standard UEMOA / 20%
+      const tva = sousTotal * 0.18;
       const total = sousTotal + tva;
 
       document.getElementById('subtotalLabel').textContent = formaterTotal(sousTotal);
@@ -1467,7 +1690,7 @@
       document.getElementById('totalLabel').textContent = formaterTotal(total);
     }
 
-    // ENCAISSEMENT & DÃ‰STOCKAGE
+    // ENCAISSEMENT D'UNE VENTE & STOCKAGE JOURNAL
     function encaisser(modePaiement) {
       if (panier.length === 0) {
         alert('Le panier est vide.');
@@ -1475,13 +1698,20 @@
       }
       playBeep(1200, 0.12);
 
-      // DÃ©crÃ©menter le stock dans le catalogue
       let sousTotal = 0;
+      const itemsDetail = [];
       const itemsHtml = panier.map(item => {
         const prod = catalogue.find(p => p.id === item.id);
         prod.stock = Math.max(0, prod.stock - item.quantite);
         const montant = getMontantNumerique(prod) * item.quantite;
         sousTotal += montant;
+        itemsDetail.push({
+          id: prod.id,
+          nom: prod.nom,
+          quantite: item.quantite,
+          prixUnit: getMontantNumerique(prod),
+          total: montant
+        });
         return `
           <div class="receipt-line">
             <span>${item.quantite}x ${prod.nom}</span>
@@ -1492,20 +1722,38 @@
 
       sauvegarderCatalogue();
 
-      const total = sousTotal * 1.18;
+      const tva = sousTotal * 0.18;
+      const total = sousTotal + tva;
       const now = new Date();
       const dateStr = now.toLocaleDateString('fr-FR') + ' ' + now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
 
       ticketSeq++;
+      const hash = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2, '0')).join('');
+
+      // Enregistrement dans le journal des ventes
+      const venteRecord = {
+        id: Date.now(),
+        ticketNum: ticketSeq,
+        date: now.toISOString(),
+        dateStr: dateStr,
+        client: clientActif,
+        mode: modePaiement,
+        devise: deviseActive,
+        sousTotal: sousTotal,
+        tva: tva,
+        total: total,
+        items: itemsDetail,
+        hash: 'SHA256:' + hash
+      };
+      journalVentes.push(venteRecord);
+      sauvegarderVentesSession();
+
       document.getElementById('receiptTicketNum').textContent = 'Ticket : #' + ticketSeq;
       document.getElementById('receiptDate').textContent = dateStr;
       document.getElementById('receiptClient').textContent = 'Client : ' + clientActif;
       document.getElementById('receiptMode').textContent = 'Paiement : ' + modePaiement;
       document.getElementById('receiptItems').innerHTML = itemsHtml;
       document.getElementById('receiptTotal').textContent = formaterTotal(total);
-
-      // Hash NF525
-      const hash = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2, '0')).join('');
       document.getElementById('receiptHash').textContent = 'SHA256:' + hash + '...' + Date.now().toString(16);
 
       document.getElementById('receiptModal').style.display = 'flex';
@@ -1517,6 +1765,242 @@
       document.getElementById('ticketNumberLabel').textContent = 'Ticket #' + (ticketSeq + 1);
       afficherProduits();
       mettreAJourPanier();
+    }
+
+    // ==========================================
+    // MODULE DE CLÔTURE DE CAISSE (TICKET Z)
+    // ==========================================
+    let clotureCalculs = {
+      nbVentes: 0,
+      totalCA: 0,
+      totalHT: 0,
+      totalTVA: 0,
+      especes: 0,
+      orange: 0,
+      mtn: 0,
+      cb: 0,
+      fondInitial: 100000,
+      theoriqueTiroir: 100000,
+      ecart: 0
+    };
+
+    function ouvrirModalClotureZ() {
+      let totalCA = 0;
+      let totalHT = 0;
+      let totalTVA = 0;
+      let especes = 0;
+      let orange = 0;
+      let mtn = 0;
+      let cb = 0;
+
+      journalVentes.forEach(v => {
+        totalCA += v.total;
+        totalHT += v.sousTotal;
+        totalTVA += v.tva;
+        if (v.mode === 'Espèces') especes += v.total;
+        else if (v.mode === 'Orange Money') orange += v.total;
+        else if (v.mode === 'MTN Mobile Money') mtn += v.total;
+        else if (v.mode === 'Carte Bancaire') cb += v.total;
+      });
+
+      const fondInitial = parseFloat(document.getElementById('inputFondCaisse').value) || 0;
+      clotureCalculs = {
+        nbVentes: journalVentes.length,
+        totalCA,
+        totalHT,
+        totalTVA,
+        especes,
+        orange,
+        mtn,
+        cb,
+        fondInitial,
+        theoriqueTiroir: fondInitial + especes,
+        ecart: 0
+      };
+
+      document.getElementById('statZNombreVentes').textContent = journalVentes.length + ' tickets';
+      document.getElementById('statZTotalCA').textContent = formaterTotal(totalCA);
+      document.getElementById('statZEspeces').textContent = formaterTotal(especes);
+      document.getElementById('statZOrange').textContent = formaterTotal(orange);
+      document.getElementById('statZMTN').textContent = formaterTotal(mtn);
+      document.getElementById('statZCB').textContent = formaterTotal(cb);
+
+      document.getElementById('valeurTheoriqueTiroir').textContent = formaterTotal(clotureCalculs.theoriqueTiroir);
+      document.getElementById('inputComptageReel').value = '';
+      document.getElementById('badgeEcartZ').style.display = 'none';
+      document.getElementById('groupJustificationEcart').style.display = 'none';
+
+      document.getElementById('modalClotureZ').style.display = 'flex';
+    }
+
+    function calculerEcartZ() {
+      const fond = parseFloat(document.getElementById('inputFondCaisse').value) || 0;
+      clotureCalculs.fondInitial = fond;
+      clotureCalculs.theoriqueTiroir = fond + clotureCalculs.especes;
+      document.getElementById('valeurTheoriqueTiroir').textContent = formaterTotal(clotureCalculs.theoriqueTiroir);
+
+      const valReelStr = document.getElementById('inputComptageReel').value.trim();
+      const badge = document.getElementById('badgeEcartZ');
+      const textEcart = document.getElementById('texteEcartZ');
+      const montEcart = document.getElementById('montantEcartZ');
+      const groupJustif = document.getElementById('groupJustificationEcart');
+
+      if (valReelStr === '') {
+        badge.style.display = 'none';
+        groupJustif.style.display = 'none';
+        return;
+      }
+
+      const valReel = parseFloat(valReelStr) || 0;
+      const ecart = valReel - clotureCalculs.theoriqueTiroir;
+      clotureCalculs.ecart = ecart;
+
+      badge.style.display = 'flex';
+      montEcart.textContent = (ecart > 0 ? '+' : '') + formaterTotal(ecart);
+
+      badge.className = 'ecart-badge';
+      if (Math.abs(ecart) < 1) {
+        badge.classList.add('ecart-parfait');
+        textEcart.textContent = '✓ Caisse Conforme (zéro écart)';
+        groupJustif.style.display = 'none';
+      } else if (ecart < 0) {
+        badge.classList.add('ecart-manquant');
+        textEcart.textContent = '⚠️ Manquant en Caisse';
+        groupJustif.style.display = 'block';
+      } else {
+        badge.classList.add('ecart-surplus');
+        textEcart.textContent = 'ℹ️ Surplus en Caisse';
+        groupJustif.style.display = 'none';
+      }
+    }
+
+    function validerClotureZ() {
+      const valReelStr = document.getElementById('inputComptageReel').value.trim();
+      if (valReelStr === '') {
+        alert('Veuillez saisir le comptage physique réel du tiroir.');
+        document.getElementById('inputComptageReel').focus();
+        return;
+      }
+
+      if (clotureCalculs.ecart < -1 && !document.getElementById('inputJustifEcart').value.trim()) {
+        alert('En cas de manquant de caisse, une justification est obligatoire pour la clôture légale.');
+        document.getElementById('inputJustifEcart').focus();
+        return;
+      }
+
+      if (!confirm('Attention : Cette action va figer définitivement le Ticket Z du jour et sceller la session comptable. Confirmer ?')) {
+        return;
+      }
+
+      const now = new Date();
+      const numZ = 'Z-' + String(historiqueZ.length + 1).padStart(4, '0');
+      const dateStr = now.toLocaleDateString('fr-FR') + ' ' + now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+      const hashZ = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2, '0')).join('');
+
+      const enregistrementZ = {
+        numZ,
+        date: now.toISOString(),
+        dateStr,
+        caissier: 'Caissier 1',
+        devise: deviseActive,
+        nbTickets: clotureCalculs.nbVentes,
+        totalCA: clotureCalculs.totalCA,
+        totalHT: clotureCalculs.totalHT,
+        totalTVA: clotureCalculs.totalTVA,
+        especes: clotureCalculs.especes,
+        orange: clotureCalculs.orange,
+        mtn: clotureCalculs.mtn,
+        cb: clotureCalculs.cb,
+        fondInitial: clotureCalculs.fondInitial,
+        theoriqueTiroir: clotureCalculs.theoriqueTiroir,
+        comptageReel: parseFloat(valReelStr) || 0,
+        ecart: clotureCalculs.ecart,
+        motifEcart: document.getElementById('inputJustifEcart').value.trim() || 'Aucun écart constaté',
+        signatureHash: 'SHA256:' + hashZ
+      };
+
+      // Sauvegarder dans l'historique permanent
+      historiqueZ.unshift(enregistrementZ);
+      sauvegarderHistoriqueZ();
+
+      // Réinitialiser le journal de la session courante
+      journalVentes = [];
+      sauvegarderVentesSession();
+
+      fermerModalClotureZ();
+      afficherTicketZModal(enregistrementZ);
+    }
+
+    function fermerModalClotureZ() {
+      document.getElementById('modalClotureZ').style.display = 'none';
+    }
+
+    function afficherTicketZModal(z) {
+      document.getElementById('zReceiptNum').textContent = 'Z n° : ' + z.numZ;
+      document.getElementById('zReceiptDate').textContent = z.dateStr;
+      document.getElementById('zReceiptTicketsCount').textContent = 'Tickets : ' + z.nbTickets;
+      document.getElementById('zReceiptTotalCA').textContent = formaterTotal(z.totalCA);
+      document.getElementById('zReceiptTotalHT').textContent = formaterTotal(z.totalHT);
+      document.getElementById('zReceiptTotalTVA').textContent = formaterTotal(z.totalTVA);
+
+      document.getElementById('zReceiptEspeces').textContent = formaterTotal(z.especes);
+      document.getElementById('zReceiptOrange').textContent = formaterTotal(z.orange);
+      document.getElementById('zReceiptMTN').textContent = formaterTotal(z.mtn);
+      document.getElementById('zReceiptCB').textContent = formaterTotal(z.cb);
+
+      document.getElementById('zReceiptFondInitial').textContent = formaterTotal(z.fondInitial);
+      document.getElementById('zReceiptEspTheorique').textContent = formaterTotal(z.theoriqueTiroir);
+      document.getElementById('zReceiptEspReel').textContent = formaterTotal(z.comptageReel);
+      document.getElementById('zReceiptEcart').textContent = (z.ecart > 0 ? '+' : '') + formaterTotal(z.ecart);
+
+      if (Math.abs(z.ecart) >= 1) {
+        document.getElementById('zReceiptJustifLine').style.display = 'flex';
+        document.getElementById('zReceiptMotif').textContent = z.motifEcart;
+      } else {
+        document.getElementById('zReceiptJustifLine').style.display = 'none';
+      }
+
+      document.getElementById('zReceiptSignature').textContent = z.signatureHash;
+      document.getElementById('modalTicketZReceipt').style.display = 'flex';
+    }
+
+    function fermerModalTicketZ() {
+      document.getElementById('modalTicketZReceipt').style.display = 'none';
+      panier = [];
+      document.getElementById('ticketNumberLabel').textContent = 'Ticket #' + (ticketSeq + 1);
+      afficherProduits();
+      mettreAJourPanier();
+      alert('Session scellée avec succès. La caisse est prête pour la nouvelle journée de vente !');
+    }
+
+    // HISTORIQUE DES TICKETS Z
+    function ouvrirModalHistoriqueZ() {
+      const container = document.getElementById('listeHistoriqueZ');
+      if (historiqueZ.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:30px; color:#64748b;">Aucune clôture Z enregistrée pour le moment.</div>';
+      } else {
+        container.innerHTML = historiqueZ.map((z, idx) => `
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:800; font-size:14px; color:#0f172a;">${z.numZ} — ${z.dateStr}</div>
+              <div style="font-size:12px; color:#64748b; margin-top:2px;">
+                CA Total : <strong>${formaterTotal(z.totalCA)}</strong> (${z.nbTickets} ventes) | Écart : <strong>${(z.ecart > 0 ? '+' : '') + formaterTotal(z.ecart)}</strong>
+              </div>
+            </div>
+            <button class="btn-secondary" onclick="reimprimerZ(${idx})">🖨️ Revoir</button>
+          </div>
+        `).join('');
+      }
+      document.getElementById('modalHistoriqueZ').style.display = 'flex';
+    }
+
+    function reimprimerZ(idx) {
+      fermerModalHistoriqueZ();
+      afficherTicketZModal(historiqueZ[idx]);
+    }
+
+    function fermerModalHistoriqueZ() {
+      document.getElementById('modalHistoriqueZ').style.display = 'none';
     }
 
     // AJOUT D'UN NOUVEAU PRODUIT DYNAMIQUEMENT
@@ -1558,7 +2042,6 @@
         return;
       }
 
-      // Image par dÃ©faut si aucune n'a Ã©tÃ© tÃ©lÃ©versÃ©e
       const defaultImg = secteur === 'auto_moto' ? './assets/products/filtre_huile.jpg' :
                          secteur === 'electricite' ? './assets/products/disjoncteur.jpg' :
                          secteur === 'plomberie' ? './assets/products/vanne_laiton.svg' :
@@ -1585,7 +2068,7 @@
       document.getElementById('sectorSelect').value = secteur;
       changerSecteur(secteur);
       playBeep(1100, 0.1);
-      alert('Produit "' + nom + '" ajoutÃ© avec succÃ¨s au catalogue !');
+      alert('Produit "' + nom + '" ajouté avec succès au catalogue !');
     }
 
     // CLIENT MODAL
@@ -1599,14 +2082,20 @@
 
     // SAUVEGARDE & EXPORT JSON
     function exporterDonnees() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(catalogue, null, 2));
+      const backupData = {
+        dateExport: new Date().toISOString(),
+        catalogue: catalogue,
+        journalVentes: journalVentes,
+        historiqueZ: historiqueZ
+      };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "catalogue_boutique_pro_" + new Date().toISOString().slice(0,10) + ".json");
+      downloadAnchor.setAttribute("download", "afrinex_pos_backup_" + new Date().toISOString().slice(0,10) + ".json");
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
-      alert('Catalogue exportÃ© avec succÃ¨s !');
+      alert('Sauvegarde complète exportée avec succès !');
     }
 
     function reinitialiserCatalogueDefaut() {
@@ -1617,17 +2106,13 @@
       }
     }
 
-    // Ã‰COUTEUR DOUCHETTE SCANNER CODE-BARRES
+    // ÉCOUTEUR SCANNER CODE-BARRES
     let scanBuffer = '';
     let lastKeyTime = Date.now();
     window.addEventListener('keydown', (e) => {
-      // Ignorer si on Ã©crit dans un champ de texte
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-
       const currentTime = Date.now();
-      if (currentTime - lastKeyTime > 100) {
-        scanBuffer = '';
-      }
+      if (currentTime - lastKeyTime > 100) scanBuffer = '';
       lastKeyTime = currentTime;
 
       if (e.key === 'Enter') {
@@ -1658,4 +2143,3 @@
   </script>
 </body>
 </html>
-
